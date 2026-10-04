@@ -1,11 +1,17 @@
 ﻿<!doctype html>
-<html>
+<html lang="zh-CN">
 <head>
 <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="404 - 页面不存在，5 秒后自动返回首页。">
+<meta name="theme-color" content="#292256">
 <title>404 - 页面不存在</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><text x='16' y='23' font-size='20' text-anchor='middle' fill='%23fff'>4</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:400,700|Russo+One&display=swap">
 
 <style>
-@import url("https://fonts.googleapis.com/css?family=Lato|Russo+One");
 *,
 *:after,
 *:before {
@@ -55,7 +61,8 @@ body {
   background-color: #fff;
   border-radius: 50%;
 }
-.star-1:before {
+.star-1:before,
+.star-2:before {
   background: radial-gradient(ellipse at center, rgba(255, 255, 255, 0.5) 0%, rgba(255, 255, 255, 0) 60%, rgba(255, 255, 255, 0) 100%);
   position: absolute;
   border-radius: 50%;
@@ -913,8 +920,10 @@ body {
 }
 
 .container-title {
-  width: 600px;
-  height: 450px;
+  width: 100%;
+  max-width: 600px;
+  height: auto;
+  padding: 0 1em;
   left: 50%;
   top: 50%;
   -webkit-transform: translate(-50%, -50%);
@@ -938,7 +947,18 @@ body {
 .number {
   text-shadow: 20px 20px 20px rgba(0, 0, 0, 0.2);
   padding: 0 0.2em;
-  font-family: 'Russo One', sans-serif;
+  font-family: 'Russo One', "Lato", sans-serif;
+  color: #fff;
+}
+/* 渐变数字：不支持 background-clip:text 的浏览器自动退回纯白 */
+@supports ((-webkit-background-clip: text) or (background-clip: text)) {
+  .number {
+    background: linear-gradient(180deg, #ffffff 0%, #e7d9ff 45%, #a07fd8 100%);
+    -webkit-background-clip: text;
+            background-clip: text;
+    color: transparent;
+    -webkit-text-fill-color: transparent;
+  }
 }
 
 .subtitle {
@@ -948,26 +968,44 @@ body {
   text-shadow: 4px 4px 4px rgba(0, 0, 0, 0.2);
 }
 
-button {
+.countdown {
+  margin-top: 1em;
+  font-size: 15px;
+  font-family: "Lato", sans-serif;
+  opacity: .8;
+  letter-spacing: .05em;
+}
+.countdown #show {
+  font-weight: 700;
+  color: #ffd000;
+  font-variant-numeric: tabular-nums;
+}
+
+.btn {
+  display: inline-block;
   font-size: 22px;
-  margin-top: 1.5em;
-  padding: 0.5em 1em;
+  margin-top: 1.2em;
+  padding: 0.5em 1.2em;
   letter-spacing: 1px;
   font-family: "Lato", sans-serif;
   color: white;
-  background-color: transparent;
-  border: 0;
+  text-decoration: none;
+  background-color: rgba(255, 255, 255, 0.12);
+  -webkit-backdrop-filter: blur(6px);
+          backdrop-filter: blur(6px);
+  border: 2px solid rgba(255, 255, 255, 0.9);
+  border-radius: 8px;
   cursor: pointer;
   z-index: 999;
-  border: 2px solid white;
-  border-radius: 5px;
   text-shadow: 4px 4px 4px rgba(0, 0, 0, 0.2);
-  transition: opacity 0.2s ease;
+  transition: transform 0.25s ease, background-color 0.25s ease, box-shadow 0.25s ease;
 }
-button:hover {
-  opacity: 0.7;
+.btn:hover {
+  transform: translateY(-3px);
+  background-color: rgba(255, 255, 255, 0.22);
+  box-shadow: 0 10px 26px rgba(255, 255, 255, 0.28);
 }
-button:focus {
+.btn:focus {
   outline: 0;
 }
 
@@ -1035,6 +1073,44 @@ button:focus {
 }
 .moon .face .eyes .eye-right {
   left: 50px;
+}
+
+/* 月亮打鼾冒出的 Zzz */
+.moon .zzz {
+  position: absolute;
+  top: -10px;
+  right: -18px;
+  width: 0;
+  height: 0;
+  font-family: "Lato", sans-serif;
+  font-weight: 700;
+  color: #5c3191;
+  text-shadow: 0 0 6px rgba(255, 255, 255, .8);
+}
+.moon .zzz span {
+  position: absolute;
+  opacity: 0;
+  -webkit-animation: zzz 4.5s ease-in-out infinite;
+          animation: zzz 4.5s ease-in-out infinite;
+}
+.moon .zzz span:nth-child(1) {
+  font-size: 14px;
+  left: 0;
+  top: 0;
+}
+.moon .zzz span:nth-child(2) {
+  font-size: 18px;
+  left: 16px;
+  top: -12px;
+  -webkit-animation-delay: .7s;
+          animation-delay: .7s;
+}
+.moon .zzz span:nth-child(3) {
+  font-size: 23px;
+  left: 36px;
+  top: -28px;
+  -webkit-animation-delay: 1.4s;
+          animation-delay: 1.4s;
 }
 
 .container-bird {
@@ -1229,6 +1305,36 @@ button:focus {
   }
   50% {
     opacity: 0.3;
+  }
+}
+@-webkit-keyframes zzz {
+  0% {
+    opacity: 0;
+    -webkit-transform: translate(0, 0) scale(0.6);
+            transform: translate(0, 0) scale(0.6);
+  }
+  25% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    -webkit-transform: translate(14px, -34px) scale(1.25);
+            transform: translate(14px, -34px) scale(1.25);
+  }
+}
+@keyframes zzz {
+  0% {
+    opacity: 0;
+    -webkit-transform: translate(0, 0) scale(0.6);
+            transform: translate(0, 0) scale(0.6);
+  }
+  25% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    -webkit-transform: translate(14px, -34px) scale(1.25);
+            transform: translate(14px, -34px) scale(1.25);
   }
 }
 @-webkit-keyframes wingLeft {
@@ -1444,8 +1550,9 @@ button:focus {
   }
 }
 @media screen and (max-width: 580px) {
-  .container-404 {
+  .container-title {
     width: 100%;
+    padding: 0 1em;
   }
 
   .number {
@@ -1457,6 +1564,10 @@ button:focus {
     padding: 0 1em;
   }
 
+  .btn {
+    font-size: 18px;
+  }
+
   .moon {
     width: 100px;
     height: 100px;
@@ -1465,6 +1576,29 @@ button:focus {
   .face {
     -webkit-transform: scale(0.7);
             transform: scale(0.7);
+  }
+
+  .moon .zzz {
+    right: -8px;
+  }
+}
+
+/* 无障碍：尊重「减弱动态效果」系统偏好 */
+@media (prefers-reduced-motion: reduce) {
+  .star-1,
+  .star-2,
+  .star-1:before,
+  .star-2:before,
+  .moon,
+  .moon .face .mouth,
+  .moon .zzz span,
+  .bird-anim,
+  .wing-left,
+  .wing-right,
+  .wing-left-top,
+  .wing-right-top {
+    -webkit-animation: none !important;
+            animation: none !important;
   }
 }
 </style>
@@ -1606,26 +1740,29 @@ button:focus {
             <div class="eye-right"></div>
           </div>
         </div>
+        <div class="zzz"><span>Z</span><span>z</span><span>z</span></div>
       </div>
       <div class="number">4</div>
     </div>
     <div class="subtitle">哎呀。看来你拐错弯了。</div>
-     <a href="https://homepage.seeker-lorraine.cn/"><button>返回</button></a>
+    <p class="countdown"><span id="show">5</span> 秒后自动返回首页…</p>
+    <a class="btn" id="home-link" href="https://homepage.seeker-lorraine.cn/">返回首页</a>
   </div>
-  <div style="display:none">
-  <script type="text/javascript"> 
-var t=10;
-setInterval("refer()",500); 
-function refer(){ 
- if(t==0){ 
- location.href="https://homepage.seeker-lorraine.cn/";
- } 
- document.getElementById('show').innerHTML=""+t+"";
- t--;
-} 
-</script> 
-<span id="show"></span> 
-</div>
+
+<script>
+/* 首页地址：改这一处即可，返回按钮与倒计时共用 */
+var HOME = "https://homepage.seeker-lorraine.cn/";
+var t = 5;
+function refer() {
+  var el = document.getElementById('show');
+  if (el) { el.textContent = t; }
+  if (t <= 0) { location.href = HOME; return; }
+  t--;
+}
+document.getElementById('home-link').href = HOME;
+refer();
+setInterval(refer, 1000);
+</script>
 </div>
 
 </body>

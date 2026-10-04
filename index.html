@@ -1,34 +1,51 @@
 <!DOCTYPE html>
-<html lang="en" >
+<html lang="zh-CN">
 
 <head>
   <meta charset="UTF-8">
-  <title>加载</title>
-  
-  
-  <link rel='stylesheet prefetch' href='https://fonts.googleapis.com/css?family=Lato:300'>
-<link rel='stylesheet prefetch' href='https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.2.0/css/font-awesome.min.css'>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="纯 HTML + CSS 实现的太阳系公转动画：太阳、八大行星、冥王星与小行星带按真实公转周期等比运行，零 JavaScript。">
+  <meta name="theme-color" content="#050608">
+  <title>太阳系 · Solar System</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><circle cx='16' cy='16' r='6' fill='%23ffd000'/><circle cx='16' cy='16' r='12' fill='none' stroke='%2366a6e5' stroke-width='1.5'/></svg>">
 
       <link rel="stylesheet" href="css/style.css">
 
-  
 </head>
 
 <body>
 
-<div class='solar-syst'>
-  <div class='sun'></div>
-  <div class='mercury'></div>
-  <div class='venus'></div>
-  <div class='earth'></div>
-  <div class='mars'></div>
-  <div class='jupiter'></div>
-  <div class='saturn'></div>
-  <div class='uranus'></div>
-  <div class='neptune'></div>
-  <div class='pluto'></div>
-  <div class='asteroids-belt'></div>
-</div>
+  <div class="description">
+    <h1>太阳系</h1>
+    <hr>
+    <p>纯 HTML + CSS 绘制，零 JavaScript。所有天体按真实公转周期等比运行：<strong>地球一年 = 30 秒</strong>。</p>
+    <ul class="legend">
+      <li><i class="dot dot-mercury"></i><span class="name">水星</span><span class="period">87.5 天</span></li>
+      <li><i class="dot dot-venus"></i><span class="name">金星</span><span class="period">224.7 天</span></li>
+      <li><i class="dot dot-earth"></i><span class="name">地球</span><span class="period">365.3 天</span></li>
+      <li><i class="dot dot-mars"></i><span class="name">火星</span><span class="period">687 天</span></li>
+      <li><i class="dot dot-jupiter"></i><span class="name">木星</span><span class="period">11.9 年</span></li>
+      <li><i class="dot dot-saturn"></i><span class="name">土星</span><span class="period">29.5 年</span></li>
+      <li><i class="dot dot-uranus"></i><span class="name">天王星</span><span class="period">84 年</span></li>
+      <li><i class="dot dot-neptune"></i><span class="name">海王星</span><span class="period">165 年</span></li>
+      <li><i class="dot dot-pluto"></i><span class="name">冥王星</span><span class="period">248 年</span></li>
+    </ul>
+    <p class="author">Made with <span class="heart">&hearts;</span> by Lorraine</p>
+  </div>
+
+  <div class="solar-syst">
+    <div class='sun' title='太阳'></div>
+    <div class='mercury' title='水星 · 公转 87.5 天'></div>
+    <div class='venus' title='金星 · 公转 224.7 天'></div>
+    <div class='earth' title='地球 · 公转 365.3 天（含月球 27.3 天）'></div>
+    <div class='mars' title='火星 · 公转 687 天'></div>
+    <div class='jupiter' title='木星 · 公转 11.9 年'></div>
+    <div class='saturn' title='土星 · 公转 29.5 年'></div>
+    <div class='uranus' title='天王星 · 公转 84 年'></div>
+    <div class='neptune' title='海王星 · 公转 165 年'></div>
+    <div class='pluto' title='冥王星 · 公转 248 年'></div>
+    <div class='asteroids-belt' title='小行星带 · 约 6 年一周'></div>
+  </div>
 
 </body>
 
