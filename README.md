@@ -9,7 +9,7 @@
 ![License](https://img.shields.io/badge/License-MIT-green)
 
 - 🌐 在线预览：<https://solar-syst.lorraine.dpdns.org/>
-- 📦 仓库：<https://github.com/seeker-lorraine/solar-syst>
+- 📦 仓库：<https://github.com/seeker-lorraine/solar-system>
 
 ---
 
@@ -37,7 +37,7 @@
 | `index.html` | 太阳系公转动画主页面：以太阳为中心，八大行星 + 冥王星 + 小行星带按真实周期比例环绕运行 |
 | `404.html` | 纯 CSS 的 404 星空页面：会眨眼的星星、睡觉的月亮、扇动翅膀的 3D 小鸟 |
 
-两个页面都**不依赖任何构建工具、框架与 JavaScript 运行时**（404 页仅有一段可选的自动跳转脚本），双击即可在浏览器打开。
+两个页面都**不依赖任何构建工具、框架与 JavaScript 运行时**（仅 404 页的自动跳转、主页面的视角拖拽是两段可选脚本，删掉后功能自动降级而不报错），双击即可在浏览器打开。
 
 ---
 
@@ -57,13 +57,15 @@
 - 🎨 **拟真配色**：每颗天体使用独立的渐变/实色（如木星 `#c76e2a`、天王星 `#b5e3e3`、冥王星 `#fff`）。
 - ♾️ **无缝循环**：`orb` 关键帧 `rotate(0deg) → rotate(-360deg)`，`linear infinite` 匀速无缝衔接。
 - 📐 **同心圆轨道**：所有天体以 `top/left: 50%` + 负 `margin` 精确定位，形成同心轨道体系。
-- 🧩 **纯 CSS 驱动**：动画全部由 `@keyframes` 完成，主页面**零 JavaScript**。
+- 🧩 **纯 CSS 驱动**：公转动画、数据卡、尺寸补偿全部由 CSS 完成，**不加载脚本也能完整运行**；`js/view.js` 只负责视角拖拽，删掉即自动退回静态视角。
+- 🧭 **左侧列表点选**：点击说明面板里的天体列表（太阳 ~ 冥王星共 11 项），右侧对应天体会放大高亮、轨道线提亮，并弹出它的数据卡；再点空白处即取消选中。
+- 🎮 **360° 视角拖拽**：按住拖动可任意俯仰 / 旋转，滚轮或双指缩放，双击复位。星球用 `billboard` 动画始终正对镜头保持圆形，轨道线则正常倾斜成椭圆。
 - 🧱 **语义化结构**：每个天体一个 `div`，类名即天体名（`.mercury` / `.saturn` ...），便于扩展。
 - 🏷️ **标题与图例面板**：左上角含标题、说明文案与九大天体图例（色点 + 名称 + 周期），悬停条目有微交互。
 - 🌐 **球体光照质感**：每颗行星改用 `radial-gradient(circle at 32% 28%, …)` 高光 + 暗部，立体感更强。
 - 🔆 **太阳日冕呼吸**：`sunGlow` 关键帧让光晕缓慢明暗脉动。
 - 🖱️ **悬停交互**：鼠标移到任意行星上，本体放大 2.2× 并加光晕，所在轨道线同时提亮（纯 CSS 实现）。
-- 📋 **悬停数据卡**：悬停任意轨道 / 天体，右下角弹出该天体的**真实数据卡**——赤道直径、质量、平均密度、表面重力、公转 / 自转周期、轨道速度、日距、温度、轴倾角、卫星数、本页动画周期，外加一条冷知识。由纯 CSS 的 `:has()` 选择器驱动，零 JavaScript；触屏点按、键盘 Tab 聚焦同样有效。
+- 📋 **悬停数据卡**：悬停任意天体，右下角弹出该天体的**真实数据卡**——赤道直径、质量、平均密度、表面重力、公转 / 自转周期、轨道速度、日距、温度、轴倾角、卫星数、本页动画周期，外加一条冷知识。由纯 CSS 的 `:has()` 选择器驱动，零 JavaScript；触屏点按、键盘 Tab 聚焦同样有效。
 - 🎨 **分色轨道线**：每条轨道使用该行星的色相，hover 时统一提亮为白色。
 - ✨ **双层星空**：`:before` / `:after` 两层星点以不同节奏 `starShimmer` 明暗交替，且都以太阳为中心。
 - 📱 **响应式缩放**：`--scale` 变量 + 四档媒体查询整体等比缩放，小屏不再溢出或横滚。
@@ -130,7 +132,7 @@ python -m http.server 8000
 
 1. 仓库 → **Settings → Pages**
 2. **Source** 选择 `Deploy from a branch`，分支选 `main`，目录选 `/ (root)`
-3. 保存后访问 `https://<用户名>.github.io/solar-syst/`
+3. 保存后访问 `https://<用户名>.github.io/solar-system/`
 
 > GitHub Pages 会自动将 `404.html` 作为该站点的 404 错误页。
 
@@ -144,6 +146,8 @@ solar-syst/
 ├── 404.html          # 纯 CSS 星空 404 页面（HTML/CSS/JS 全内联）
 ├── css/
 │   └── style.css     # 太阳系全部样式与 @keyframes 动画
+├── js/
+│   └── view.js       # 视角拖拽 / 缩放（渐进增强，删掉不影响其它功能）
 ├── LICENSE           # MIT 许可证
 └── README.md         # 项目说明
 ```
@@ -188,7 +192,10 @@ solar-syst/
 - **增删天体**：在 `index.html` 的 `.solar-syst` 中增删一个 `div`，并在 `css/style.css` 中补一段同名样式即可。
 - **更换 404 跳转地址**：只需改 `404.html` 脚本里的 `var HOME = "..."`，返回按钮与倒计时共用这一个常量。
 - **调整说明面板**：`index.html` 顶部的 `.description`（标题 + 说明 + `.legend` 图例）可直接改文案；图例色点由 `.dot-*` 类控制，尺寸/显隐见媒体查询。
-- **修改数据卡内容**：`index.html` 底部的 `<aside class="info-panel">` 里，每个天体一个 `<section class="card card-xxx">`，改 `<dl>` 里的 `<dt>/<dd>` 即可；新增天体时在 CSS 里补一条 `body:has(.xxx:hover) .card-xxx { display: block; }`。
+- **修改数据卡内容**：`index.html` 底部的 `<aside class="info-panel">` 里，每个天体一个 `<section class="card card-xxx">`，改 `<dl>` 里的 `<dt>/<dd>` 即可；新增天体时在 CSS 里补一条 `body:has(.xxx:is(:hover, :focus)) .card-xxx { display: block; }`。
+- **调整拖拽手感**：改 `js/view.js` 顶部的 `DEG`（像素→角度灵敏度）、`MAX_PITCH`（俯仰上限）、`TAP_SLOP`（点按与拖拽的判定阈值）。
+- **改默认视角**：默认平视，改 CSS 里 `.universe` 的 `rotateX(var(--pitch, 0deg)) rotateY(var(--yaw, 0deg))` 兜底值即可，例如 `62deg / -20deg` 是经典 3/4 斜视角。
+- **增删列表项**：`index.html` 的 `.legend` 里每项是一个 `<button data-target="xxx">`，`xxx` 必须与对应轨道 div 的 `id` 一致（轨道 div 同时有 `data-name` 供焦点同步用）；选中高亮样式在 `.legend button.is-active` 与 `.solar-syst div:focus` 两处。
 
 ---
 
@@ -200,8 +207,10 @@ solar-syst/
 - 小屏下说明面板会自动收起图例（`.legend { display: none }`），信息卡改为**贴底窄条**并隐藏冷知识行；触屏点按天体同样会触发卡片（`tabindex` + `:focus`）。
 - 小屏为了塞下 780px 的最外轨道，整体要缩到 0.34~0.45 倍，因此用 `--boost` 对星球 / 土星环 / 月球做**尺寸补偿**（`--boost=1` 时与桌面完全一致）；若觉得补偿过度，改媒体查询里的 `--boost` 即可。
 - **悬停数据卡依赖 CSS `:has()`**：需 Chrome 105+ / Edge 105+ / Safari 15.4+ / Firefox 121+（2023 年底起已是 Baseline）。旧浏览器只会退化成不显示卡片，页面其余部分不受影响。
-- 悬停命中范围是「轨道圆盘」：光标落在两条轨道之间的空白时，会显示**外侧最近的那条轨道**所属天体，这是有意保留的行为（也让 3~4px 的水星、冥王星更好点中）。
+- 悬停命中区是**星球本体 + 一圈隐形命中圈**（默认直径 26px，随 `--boost` 放大），而不是整块轨道圆盘。原因是开启 3D 视角后浏览器改按深度排序、`z-index` 失效，倾斜时外圈大圆环会盖到内圈前面，命中会错乱。想调整手感就改 CSS 里那条 `:not(.earth):not(.saturn):after` 规则的尺寸（地球与土星的 `::after` 本身即命中区）。
 - 天体数据取自 NASA Planetary Fact Sheet 的公开数值，卫星数量会随新发现变动（页面已用「95+」等方式标注）。
+- 视角拖拽会给 `html/body` 加上 `touch-action: none`（否则移动端浏览器手势会抢走事件），因此移动端的缩放改由脚本内的**双指缩放**实现。不需要视角功能时，直接删掉 `js/view.js` 和 `index.html` 里那行 `<script>` 即可恢复原状。
+- 视角拖拽状态下星球会保持正圆（billboard），这是刻意设计：真实天体是球状，而轨道线仍会随视角倾斜成椭圆。若更喜欢"平面剪纸"质感，删掉 `.solar-syst div:not(.sun):not(.asteroids-belt):before` 里的 `animation: billboard …` 一行即可。
 
 ---
 

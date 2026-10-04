@@ -32,6 +32,15 @@ html, body {
   height: 100%;
   width: 100%;
   overflow: hidden;
+  /* 视角拖拽由 js/view.js 接管，禁掉浏览器手势与文字选中，避免抢事件 */
+  touch-action: none;
+  -webkit-user-select: none;
+     -moz-user-select: none;
+          user-select: none;
+  cursor: grab;
+}
+body.is-dragging {
+  cursor: grabbing;
 }
 
 body {
@@ -97,6 +106,12 @@ a.icon, a:visited.icon {
 .description .heart {
   color: #ff4d6d;
 }
+.description .tip {
+  margin-top: 12px;
+  font-size: .72em;
+  line-height: 1.6em;
+  opacity: .45;
+}
 
 /* 图例 */
 .legend {
@@ -105,15 +120,40 @@ a.icon, a:visited.icon {
   font-size: .78em;
 }
 .legend li {
+  display: block;
+}
+.legend button {
   display: flex;
   align-items: center;
+  width: 100%;
   padding: 3px 0;
+  font: inherit;
+  color: inherit;
+  text-align: left;
+  background: none;
+  border: 0;
+  cursor: pointer;
   opacity: .72;
   transition: opacity .2s ease, transform .2s ease;
 }
-.legend li:hover {
+.legend button:hover {
   opacity: 1;
   transform: translateX(4px);
+}
+.legend button:focus-visible {
+  outline: 1px dashed rgba(255, 255, 255, .5);
+  outline-offset: 2px;
+}
+/* 选中态（由 js/view.js 同步：点击列表 ⇄ 聚焦天体） */
+.legend button.is-active {
+  opacity: 1;
+  transform: translateX(4px);
+}
+.legend button.is-active .name {
+  font-weight: 600;
+}
+.legend button.is-active .dot {
+  box-shadow: inset 0 1px 0 -1px rgba(0, 0, 0, .55), 0 0 0 3px rgba(255, 255, 255, .28);
 }
 .legend .dot {
   width: 8px;
@@ -166,8 +206,61 @@ code {
   --scale: 1;
   /* 天体本体的尺寸补偿：轨道缩小了，但星球不能跟着缩到看不见 */
   --boost: 1;
-  -webkit-transform: scale(var(--scale));
-          transform: scale(var(--scale));
+  /* --zoom 由 js/view.js 写入（滚轮 / 双指缩放），删掉脚本时取兜底值 1 */
+  -webkit-transform: scale(calc(var(--scale) * var(--zoom, 1)));
+          transform: scale(calc(var(--scale) * var(--zoom, 1)));
+  /* 3D 透视：只在拖拽倾斜时才看得出来，平视状态下无副作用 */
+  -webkit-perspective: 1400px;
+          perspective: 1400px;
+}
+
+/* 3D 舞台：只有天体跟着拖拽旋转，星空伪元素留在 .solar-syst 上不转。
+   注意 --yaw / --pitch 只写在 var() 的兜底里，不要再在 .solar-syst 上声明，
+   否则会盖掉 JS 写在 <html> 上的值，拖拽会失效。 */
+.universe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  -webkit-transform-style: preserve-3d;
+          transform-style: preserve-3d;
+  -webkit-transform: rotateX(var(--pitch, 0deg)) rotateY(var(--yaw, 0deg));
+          transform: rotateX(var(--pitch, 0deg)) rotateY(var(--yaw, 0deg));
+}
+/* 360° 观看必须能看到背面，否则转过 90° 整个星系会凭空消失
+   （特异性 (0,2,1) > .solar-syst div 的 (0,1,1)，不受书写顺序影响） */
+.solar-syst .universe > div {
+  -webkit-backface-visibility: visible;
+          backface-visibility: visible;
+  /* 让 ::before 的 3D 反向旋转能真正参与 3D 空间，否则会被压平 */
+  -webkit-transform-style: preserve-3d;
+          transform-style: preserve-3d;
+  /* 关键：进入 3D 上下文后浏览器按「深度」排序，z-index 失效，倾斜时
+     外圈大圆环会盖到内圈前面，命中就会错乱。所以轨道圆盘本身不接收指针事件，
+     只让星球本体（:before）和隐形命中区（:after）接收。 */
+  pointer-events: none;
+}
+.solar-syst .universe > div.sun,
+.solar-syst .universe > div:before,
+.solar-syst .universe > div:after {
+  pointer-events: auto;
+}
+
+/* 小星球（水星 4px / 冥王星 3px）太难点中，补一圈跟随星球的隐形命中区。
+   地球与土星已用 ::after 画月球轨道 / 土星环，本身就充当命中区，故排除。 */
+.solar-syst .universe > div:not(.sun):not(.asteroids-belt):not(.earth):not(.saturn):after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 0;
+  width: calc(26px * var(--boost, 1));
+  height: calc(26px * var(--boost, 1));
+  margin-left: calc(-13px * var(--boost, 1));
+  margin-top: calc(-13px * var(--boost, 1));
+  border-radius: 50%;
+  background: transparent;
+  pointer-events: auto;
 }
 
 /* 第二层星空：更小、更暗、闪得更慢，与 .solar-syst:after 形成纵深 */
@@ -214,7 +307,9 @@ code {
      .mercury / .pluto 层级，导致最外层轨道（冥王星）抢走所有 hover 命中 */
   -webkit-backface-visibility: hidden;
           backface-visibility: hidden;
-  will-change: transform;
+  /* 注意：绝不能写 will-change: transform —— 它会把轨道圆盘提升成独立合成层，
+     在 iOS Safari / Android Chrome 上压平 preserve-3d 上下文，导致 billboard 失效
+     （星球被压成椭圆）且轨道不再按深度排序（立体感消失）。性能靠现代 GPU 硬扛即可。 */
 }
 .solar-syst div:not(.sun) {
   border: 1px solid var(--orbit-line);
@@ -229,20 +324,37 @@ code {
   border-radius: 100px;
   content: "";
   position: absolute;
-  -webkit-transition: -webkit-transform .25s ease, box-shadow .25s ease;
-          transition: transform .25s ease, box-shadow .25s ease;
+  -webkit-transition: scale .25s ease, box-shadow .25s ease;
+          transition: scale .25s ease, box-shadow .25s ease;
 }
-/* 小屏缩放时给天体本体做尺寸补偿（小行星带是纹理，不参与） */
+/* 小屏缩放时给天体本体做尺寸补偿（小行星带是纹理，不参与）。
+   billboard 动画同时抵消「轨道自转 + 视角旋转」，让星球始终正对镜头保持圆形，
+   而轨道线仍正常变成椭圆。--dur 由各行星自己提供（与公转周期一致），
+   --s 是本体缩放（含 hover / 选中时的放大），放进 transform 里而非独立 scale 属性，
+   这样移动端「动画 transform + 独立 scale 属性」的组合不会把伪元素压平。 */
 .solar-syst div:not(.sun):not(.asteroids-belt):before {
-  -webkit-transform: scale(var(--boost, 1));
-          transform: scale(var(--boost, 1));
+  --s: var(--boost, 1);
+  -webkit-animation: billboard var(--dur, 30s) linear infinite;
+          animation: billboard var(--dur, 30s) linear infinite;
 }
 /* 悬停任意行星：本体放大并加一圈光晕 */
 .solar-syst div:not(.sun):not(.asteroids-belt):hover:before {
-  -webkit-transform: scale(calc(var(--boost, 1) * 2.2));
-          transform: scale(calc(var(--boost, 1) * 2.2));
+  --s: calc(var(--boost, 1) * 2.2);
   -webkit-box-shadow: inset 0 6px 0 -2px rgba(0, 0, 0, 0.25), 0 0 0 3px rgba(255, 255, 255, 0.18), 0 0 14px 3px rgba(255, 255, 255, 0.25);
           box-shadow: inset 0 6px 0 -2px rgba(0, 0, 0, 0.25), 0 0 0 3px rgba(255, 255, 255, 0.18), 0 0 14px 3px rgba(255, 255, 255, 0.25);
+}
+/* 从左侧列表选中（:focus）时的高亮，比 hover 更强一档，方便确认选中的是哪一颗 */
+.solar-syst div:not(.sun):not(.asteroids-belt):focus {
+  border-color: rgba(255, 255, 255, 0.55);
+}
+.solar-syst div:not(.sun):not(.asteroids-belt):focus:before {
+  --s: calc(var(--boost, 1) * 2.6);
+  -webkit-box-shadow: inset 0 6px 0 -2px rgba(0, 0, 0, 0.25), 0 0 0 3px rgba(255, 255, 255, 0.3), 0 0 20px 5px rgba(255, 255, 255, 0.4);
+          box-shadow: inset 0 6px 0 -2px rgba(0, 0, 0, 0.25), 0 0 0 3px rgba(255, 255, 255, 0.3), 0 0 20px 5px rgba(255, 255, 255, 0.4);
+}
+/* 太阳的 box-shadow 被 sunGlow 动画占用，改用 filter 做选中反馈 */
+.sun:focus {
+  filter: brightness(1.25);
 }
 .solar-syst div:not(.asteroids-belt):before {
   -webkit-box-shadow: inset 0 6px 0 -2px rgba(0, 0, 0, 0.25);
@@ -260,8 +372,9 @@ code {
   background-position: -28px -103px;
   background-size: 175%;
   z-index: 1000;
-  -webkit-transform: scale(var(--boost, 1));
-          transform: scale(var(--boost, 1));
+  /* 太阳不在轨道上自转，静态反向抵消视角旋转即可保持正圆 */
+  -webkit-transform: rotateY(calc(-1 * var(--yaw, 0deg))) rotateX(calc(-1 * var(--pitch, 0deg))) scale(var(--boost, 1));
+          transform: rotateY(calc(-1 * var(--yaw, 0deg))) rotateX(calc(-1 * var(--pitch, 0deg))) scale(var(--boost, 1));
   -webkit-box-shadow: 0 0 10px 2px rgba(255, 107, 0, 0.4), 0 0 22px 11px rgba(255, 203, 0, 0.13);
           box-shadow: 0 0 10px 2px rgba(255, 107, 0, 0.4), 0 0 22px 11px rgba(255, 203, 0, 0.13);
   -webkit-animation: sunGlow 6s ease-in-out infinite;
@@ -275,8 +388,9 @@ code {
   margin-left: -35px;
   z-index: 90;
   border-color: rgba(159, 94, 38, 0.22);
-  -webkit-animation: orb calc(var(--earth-year) * 0.2395578) linear infinite;
-          animation: orb calc(var(--earth-year) * 0.2395578) linear infinite;
+  --dur: calc(var(--earth-year) * 0.2395578);
+  -webkit-animation: orb var(--dur) linear infinite;
+          animation: orb var(--dur) linear infinite;
 }
 .mercury:before {
   height: 4px;
@@ -293,8 +407,9 @@ code {
   margin-left: -50px;
   z-index: 80;
   border-color: rgba(190, 183, 104, 0.22);
-  -webkit-animation: orb calc(var(--earth-year) * 0.6151845) linear infinite;
-          animation: orb calc(var(--earth-year) * 0.6151845) linear infinite;
+  --dur: calc(var(--earth-year) * 0.6151845);
+  -webkit-animation: orb var(--dur) linear infinite;
+          animation: orb var(--dur) linear infinite;
 }
 .venus:before {
   height: 8px;
@@ -311,8 +426,9 @@ code {
   margin-left: -72.5px;
   z-index: 70;
   border-color: rgba(17, 171, 233, 0.22);
-  -webkit-animation: orb var(--earth-year) linear infinite;
-          animation: orb var(--earth-year) linear infinite;
+  --dur: var(--earth-year);
+  -webkit-animation: orb var(--dur) linear infinite;
+          animation: orb var(--dur) linear infinite;
 }
 .earth:before {
   height: 6px;
@@ -345,8 +461,9 @@ code {
   margin-left: -95px;
   z-index: 60;
   border-color: rgba(207, 57, 33, 0.22);
-  -webkit-animation: orb calc(var(--earth-year) * 1.8804204) linear infinite;
-          animation: orb calc(var(--earth-year) * 1.8804204) linear infinite;
+  --dur: calc(var(--earth-year) * 1.8804204);
+  -webkit-animation: orb var(--dur) linear infinite;
+          animation: orb var(--dur) linear infinite;
 }
 .mars:before {
   height: 6px;
@@ -363,8 +480,9 @@ code {
   margin-left: -170px;
   z-index: 40;
   border-color: rgba(199, 110, 42, 0.18);
-  -webkit-animation: orb calc(var(--earth-year) * 11.8574272) linear infinite;
-          animation: orb calc(var(--earth-year) * 11.8574272) linear infinite;
+  --dur: calc(var(--earth-year) * 11.8574272);
+  -webkit-animation: orb var(--dur) linear infinite;
+          animation: orb var(--dur) linear infinite;
 }
 .jupiter:before {
   height: 18px;
@@ -381,8 +499,9 @@ code {
   margin-left: -220px;
   z-index: 30;
   border-color: rgba(231, 193, 148, 0.18);
-  -webkit-animation: orb calc(var(--earth-year) * 29.4231749) linear infinite;
-          animation: orb calc(var(--earth-year) * 29.4231749) linear infinite;
+  --dur: calc(var(--earth-year) * 29.4231749);
+  -webkit-animation: orb var(--dur) linear infinite;
+          animation: orb var(--dur) linear infinite;
 }
 .saturn:before {
   height: 12px;
@@ -406,8 +525,8 @@ code {
   border-radius: 50% 50% 50% 50%;
   -webkit-box-shadow: 0 1px 0 1px #987641, 3px 1px 0 #987641, -3px 1px 0 #987641;
           box-shadow: 0 1px 0 1px #987641, 3px 1px 0 #987641, -3px 1px 0 #987641;
-  -webkit-animation: orb calc(var(--earth-year) * 29.4231749) linear infinite;
-          animation: orb calc(var(--earth-year) * 29.4231749) linear infinite;
+  -webkit-animation: orb var(--dur) linear infinite;
+          animation: orb var(--dur) linear infinite;
   animation-direction: reverse;
   -webkit-transform-origin: 52% 60%;
           transform-origin: 52% 60%;
@@ -420,8 +539,9 @@ code {
   margin-left: -260px;
   z-index: 20;
   border-color: rgba(181, 227, 227, 0.18);
-  -webkit-animation: orb calc(var(--earth-year) * 83.7466732) linear infinite;
-          animation: orb calc(var(--earth-year) * 83.7466732) linear infinite;
+  --dur: calc(var(--earth-year) * 83.7466732);
+  -webkit-animation: orb var(--dur) linear infinite;
+          animation: orb var(--dur) linear infinite;
 }
 .uranus:before {
   height: 10px;
@@ -438,8 +558,9 @@ code {
   margin-left: -315px;
   z-index: 10;
   border-color: rgba(23, 94, 158, 0.2);
-  -webkit-animation: orb calc(var(--earth-year) * 163.7261287) linear infinite;
-          animation: orb calc(var(--earth-year) * 163.7261287) linear infinite;
+  --dur: calc(var(--earth-year) * 163.7261287);
+  -webkit-animation: orb var(--dur) linear infinite;
+          animation: orb var(--dur) linear infinite;
 }
 .neptune:before {
   height: 10px;
@@ -481,8 +602,9 @@ code {
   margin-left: -390px;
   z-index: 5;
   border-color: rgba(255, 255, 255, 0.18);
-  -webkit-animation: orb calc(var(--earth-year) * 247.9902468) linear infinite;
-          animation: orb calc(var(--earth-year) * 247.9902468) linear infinite;
+  --dur: calc(var(--earth-year) * 247.9902468);
+  -webkit-animation: orb var(--dur) linear infinite;
+          animation: orb var(--dur) linear infinite;
 }
 .pluto:before {
   height: 3px;
@@ -520,6 +642,30 @@ code {
   to {
     -webkit-transform: rotate(-360deg);
             transform: rotate(-360deg);
+  }
+}
+
+/* 星球「面向镜头」：父级是 rotateX(--pitch) rotateY(--yaw) 再叠轨道自转 rotate(-θ)，
+   这里用 rotate(θ) + 反向视角旋转把三者全部抵消，使星球恒为正圆。
+   轨道线（父元素的 border）不受影响，仍会正常倾斜成椭圆。 */
+@-webkit-keyframes billboard {
+  from {
+    -webkit-transform: rotate(0deg) rotateY(calc(-1 * var(--yaw, 0deg))) rotateX(calc(-1 * var(--pitch, 0deg))) scale(var(--s, 1));
+            transform: rotate(0deg) rotateY(calc(-1 * var(--yaw, 0deg))) rotateX(calc(-1 * var(--pitch, 0deg))) scale(var(--s, 1));
+  }
+  to {
+    -webkit-transform: rotate(360deg) rotateY(calc(-1 * var(--yaw, 0deg))) rotateX(calc(-1 * var(--pitch, 0deg))) scale(var(--s, 1));
+            transform: rotate(360deg) rotateY(calc(-1 * var(--yaw, 0deg))) rotateX(calc(-1 * var(--pitch, 0deg))) scale(var(--s, 1));
+  }
+}
+@keyframes billboard {
+  from {
+    -webkit-transform: rotate(0deg) rotateY(calc(-1 * var(--yaw, 0deg))) rotateX(calc(-1 * var(--pitch, 0deg))) scale(var(--s, 1));
+            transform: rotate(0deg) rotateY(calc(-1 * var(--yaw, 0deg))) rotateX(calc(-1 * var(--pitch, 0deg))) scale(var(--s, 1));
+  }
+  to {
+    -webkit-transform: rotate(360deg) rotateY(calc(-1 * var(--yaw, 0deg))) rotateX(calc(-1 * var(--pitch, 0deg))) scale(var(--s, 1));
+            transform: rotate(360deg) rotateY(calc(-1 * var(--yaw, 0deg))) rotateX(calc(-1 * var(--pitch, 0deg))) scale(var(--s, 1));
   }
 }
 
@@ -690,6 +836,10 @@ body:has(.solar-syst div:is(:hover, :focus)) .info-hint {
 }
 .solar-syst div:focus {
   outline: none;
+}
+/* 正在拖拽视角时不要弹数据卡（.card 的 :has 规则特异性更高，故用 !important） */
+body.is-dragging .card {
+  display: none !important;
 }
 
 @-webkit-keyframes cardIn {

@@ -20,36 +20,42 @@
     <hr>
     <p>纯 HTML + CSS 绘制，零 JavaScript。所有天体按真实公转周期等比运行：<strong>地球一年 = 30 秒</strong>。</p>
     <ul class="legend">
-      <li><i class="dot dot-mercury"></i><span class="name">水星</span><span class="period">87.5 天</span></li>
-      <li><i class="dot dot-venus"></i><span class="name">金星</span><span class="period">224.7 天</span></li>
-      <li><i class="dot dot-earth"></i><span class="name">地球</span><span class="period">365.3 天</span></li>
-      <li><i class="dot dot-mars"></i><span class="name">火星</span><span class="period">687 天</span></li>
-      <li><i class="dot dot-jupiter"></i><span class="name">木星</span><span class="period">11.9 年</span></li>
-      <li><i class="dot dot-saturn"></i><span class="name">土星</span><span class="period">29.5 年</span></li>
-      <li><i class="dot dot-uranus"></i><span class="name">天王星</span><span class="period">84 年</span></li>
-      <li><i class="dot dot-neptune"></i><span class="name">海王星</span><span class="period">165 年</span></li>
-      <li><i class="dot dot-pluto"></i><span class="name">冥王星</span><span class="period">248 年</span></li>
+      <li><button type="button" data-target="sun"><i class="dot dot-sun"></i><span class="name">太阳</span><span class="period">恒星</span></button></li>
+      <li><button type="button" data-target="mercury"><i class="dot dot-mercury"></i><span class="name">水星</span><span class="period">87.5 天</span></button></li>
+      <li><button type="button" data-target="venus"><i class="dot dot-venus"></i><span class="name">金星</span><span class="period">224.7 天</span></button></li>
+      <li><button type="button" data-target="earth"><i class="dot dot-earth"></i><span class="name">地球</span><span class="period">365.3 天</span></button></li>
+      <li><button type="button" data-target="mars"><i class="dot dot-mars"></i><span class="name">火星</span><span class="period">687 天</span></button></li>
+      <li><button type="button" data-target="belt"><i class="dot dot-belt"></i><span class="name">小行星带</span><span class="period">3~6 年</span></button></li>
+      <li><button type="button" data-target="jupiter"><i class="dot dot-jupiter"></i><span class="name">木星</span><span class="period">11.9 年</span></button></li>
+      <li><button type="button" data-target="saturn"><i class="dot dot-saturn"></i><span class="name">土星</span><span class="period">29.5 年</span></button></li>
+      <li><button type="button" data-target="uranus"><i class="dot dot-uranus"></i><span class="name">天王星</span><span class="period">84 年</span></button></li>
+      <li><button type="button" data-target="neptune"><i class="dot dot-neptune"></i><span class="name">海王星</span><span class="period">165 年</span></button></li>
+      <li><button type="button" data-target="pluto"><i class="dot dot-pluto"></i><span class="name">冥王星</span><span class="period">248 年</span></button></li>
     </ul>
+    <p class="tip">拖拽可 360° 旋转视角；滚轮 / 双指缩放；双击（移动端双指轻点两下）复位。</p>
     <p class="author">Made with <span class="heart">&hearts;</span> by Lorraine</p>
   </div>
 
   <!-- 每个轨道都可聚焦（tabindex），这样鼠标悬浮、触屏点按、键盘 Tab 三种方式都能唤出数据卡 -->
   <div class="solar-syst">
-    <div class='sun' tabindex='0' aria-label='太阳'></div>
-    <div class='mercury' tabindex='0' aria-label='水星'></div>
-    <div class='venus' tabindex='0' aria-label='金星'></div>
-    <div class='earth' tabindex='0' aria-label='地球'></div>
-    <div class='mars' tabindex='0' aria-label='火星'></div>
-    <div class='jupiter' tabindex='0' aria-label='木星'></div>
-    <div class='saturn' tabindex='0' aria-label='土星'></div>
-    <div class='uranus' tabindex='0' aria-label='天王星'></div>
-    <div class='neptune' tabindex='0' aria-label='海王星'></div>
-    <div class='pluto' tabindex='0' aria-label='冥王星'></div>
-    <div class='asteroids-belt' tabindex='0' aria-label='小行星带'></div>
+    <!-- .universe 是 3D 舞台：只有天体跟着拖拽旋转，星空伪元素留在外层不转 -->
+    <section class="universe">
+      <div class='sun' id='sun' data-name='sun' tabindex='0' aria-label='太阳'></div>
+      <div class='mercury' id='mercury' data-name='mercury' tabindex='0' aria-label='水星'></div>
+      <div class='venus' id='venus' data-name='venus' tabindex='0' aria-label='金星'></div>
+      <div class='earth' id='earth' data-name='earth' tabindex='0' aria-label='地球'></div>
+      <div class='mars' id='mars' data-name='mars' tabindex='0' aria-label='火星'></div>
+      <div class='jupiter' id='jupiter' data-name='jupiter' tabindex='0' aria-label='木星'></div>
+      <div class='saturn' id='saturn' data-name='saturn' tabindex='0' aria-label='土星'></div>
+      <div class='uranus' id='uranus' data-name='uranus' tabindex='0' aria-label='天王星'></div>
+      <div class='neptune' id='neptune' data-name='neptune' tabindex='0' aria-label='海王星'></div>
+      <div class='pluto' id='pluto' data-name='pluto' tabindex='0' aria-label='冥王星'></div>
+      <div class='asteroids-belt' id='belt' data-name='belt' tabindex='0' aria-label='小行星带'></div>
+    </section>
   </div>
 
   <aside class="info-panel">
-    <p class="info-hint">将鼠标悬停（或点按、Tab 聚焦）到任意轨道 / 天体上，这里会显示它的真实数据。</p>
+    <p class="info-hint">把鼠标悬停（或点按、Tab 聚焦）到任意天体上，也可以直接点击左侧的天体列表，这里都会显示它的真实数据。</p>
 
     <section class="card card-sun">
       <header><i class="dot dot-sun"></i><h2>太阳<small>Sun</small></h2><span class="tag">G2V 主序星</span></header>
@@ -255,6 +261,9 @@
       <p class="note">1930 年发现，2006 年 IAU 重新定义行星后归为矮行星；轨道倾角 17°，与海王星形成 2:3 共振。</p>
     </section>
   </aside>
+
+  <!-- 视角拖拽：可选增强，删掉这行页面会退回静态视角，其余功能不受影响 -->
+  <script src="js/view.js" defer></script>
 
 </body>
 
