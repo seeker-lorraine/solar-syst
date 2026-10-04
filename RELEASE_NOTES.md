@@ -1,32 +1,24 @@
-# solar-syst v1.1.0
+# solar-syst v1.2.0
 
-优化与美化更新 ✨
+悬停天体数据卡 + 移动端适配修正 🔭
 
-## 🐛 Bug 修复
+## ✨ 新增
 
-- **冥王星轨道圆心偏移**：`margin-top/-left` 由 `-450px / -320px` 修正为 `-390px / -390px`，轨道终于与太阳同心。
-- **404 小屏适配失效**：媒体查询里的 `.container-404` 在 HTML 中并不存在，已改为 `.container-title`，小屏不再溢出。
-- **404 星空 30 条死规则**：`.star-2:before` 缺少基础定义导致 30 条 `nth-of-type` 规则全部不渲染，已与 `.star-1:before` 合并。
-- **404 倒计时不可见**：倒计时元素包在 `display:none` 容器里，现已显示在页面上；同时 `setInterval("refer()")` 改为 `setInterval(refer, 1000)`。
-- **非法嵌套**：`<a><button>` 改为语义化的 `<a class="btn">`。
+- **悬停天体数据卡**：鼠标悬停任意轨道 / 天体，弹出该天体的真实数据卡 —— 赤道直径、质量（含「××地球」）、平均密度、表面重力、公转 / 自转周期、平均轨道速度、日距（AU + km）、温度、轴倾角、卫星数、**本页动画周期**，外加一条冷知识。共 11 张（太阳 / 八大行星 / 小行星带 / 冥王星），月球数据附在地球卡内。数值取自 NASA Planetary Fact Sheet。
+- **纯 CSS `:has()` 驱动，零 JavaScript**：`body:has(.jupiter:is(:hover, :focus)) .card-jupiter { display: block }`，主页面依旧不含任何脚本。
+- **三种触发方式**：鼠标悬停、触屏点按、键盘 Tab 聚焦（每个轨道补了 `tabindex` 与 `aria-label`）。
 
-## 🎨 视觉
+## 🐛 修复
 
-- 主页面新增标题 + 说明 + 九大天体图例面板
-- 行星改为 `radial-gradient` 球体光照；太阳增加日冕呼吸动画
-- 悬停行星：本体放大 + 光晕 + 轨道线提亮；轨道线按行星色相着色
-- 星空拆成两层，以不同节奏明暗交替，并以太阳为中心
-- 404：数字加金属渐变、按钮改毛玻璃、月亮新增 `Zzz` 打鼾气泡、倒计时可见
+- **小屏天体过小**：`--scale` 把整个星系缩到 0.34~0.45 后，4px 的水星只剩约 1px。新增 `--boost` 对星球本体做尺寸补偿（1100 / 900 / 640 / 420px 四档分别为 1.15 / 1.4 / 1.7 / 2），375px 屏上水星约 2.7px、木星约 12.2px；`--boost: 1` 时与桌面端数值完全一致。
+- **土星环被星球盖住**：环尺寸原本是固定百分比，星球放大后环会缩到比星球还窄，改为 `calc(4.676% * var(--boost))`；月球同理改为 `calc(var(--boost) * 2px - 9px)`。
+- **小屏完全没有数据卡**：原先 ≤640px 直接 `display: none`，现改为贴底窄条卡片并隐藏冷知识行以节省高度。
 
-## ⚡ 性能与工程化
+## 📝 说明
 
-- 全局调速收敛为 `:root` 的 `--earth-year`，各周期用 `calc()` 换算
-- 轨道 div 加 `will-change: transform` / `backface-visibility`，减少大圆环重绘
-- 新增 `--scale` 响应式缩放（≤1100 / 900 / 640 / 420px 四档）
-- 两个页面均支持 `prefers-reduced-motion`
-- `index.html` 移除未使用的 Google Fonts 与 Font Awesome 外链，补充 viewport / description / favicon
-- `404.html` 的 `@import` 改为 `preconnect` + `<link … display=swap>`
+- 数据卡依赖 CSS `:has()`（Chrome 105+ / Edge 105+ / Safari 15.4+ / Firefox 121+），旧浏览器仅退化为不显示卡片，页面其余功能不受影响。
+- 悬停命中范围是「轨道圆盘」：光标落在两条轨道之间的空白时，会显示外侧最近的那条轨道所属天体，这是有意保留的（也让 3~4px 的水星、冥王星更好点中）。
 
 ---
 
-**Full Changelog**: https://github.com/seeker-lorraine/solar-syst/commits/v1.1.0
+**Full Changelog**: https://github.com/seeker-lorraine/solar-syst/compare/v1.1.0...v1.2.0

@@ -139,6 +139,8 @@ a.icon, a:visited.icon {
 .dot-uranus  { background: #b5e3e3; }
 .dot-neptune { background: #175e9e; }
 .dot-pluto   { background: #ece7e1; }
+.dot-sun     { background: radial-gradient(circle at 32% 28%, #ffd000, #e06317); }
+.dot-belt    { background: #8b8f99; }
 
 hr {
   margin: 26px 0;
@@ -162,6 +164,8 @@ code {
   position: relative;
   /* 小屏整体缩放系数，见文件末尾的媒体查询 */
   --scale: 1;
+  /* 天体本体的尺寸补偿：轨道缩小了，但星球不能跟着缩到看不见 */
+  --boost: 1;
   -webkit-transform: scale(var(--scale));
           transform: scale(var(--scale));
 }
@@ -228,10 +232,15 @@ code {
   -webkit-transition: -webkit-transform .25s ease, box-shadow .25s ease;
           transition: transform .25s ease, box-shadow .25s ease;
 }
+/* 小屏缩放时给天体本体做尺寸补偿（小行星带是纹理，不参与） */
+.solar-syst div:not(.sun):not(.asteroids-belt):before {
+  -webkit-transform: scale(var(--boost, 1));
+          transform: scale(var(--boost, 1));
+}
 /* 悬停任意行星：本体放大并加一圈光晕 */
 .solar-syst div:not(.sun):not(.asteroids-belt):hover:before {
-  -webkit-transform: scale(2.2);
-          transform: scale(2.2);
+  -webkit-transform: scale(calc(var(--boost, 1) * 2.2));
+          transform: scale(calc(var(--boost, 1) * 2.2));
   -webkit-box-shadow: inset 0 6px 0 -2px rgba(0, 0, 0, 0.25), 0 0 0 3px rgba(255, 255, 255, 0.18), 0 0 14px 3px rgba(255, 255, 255, 0.25);
           box-shadow: inset 0 6px 0 -2px rgba(0, 0, 0, 0.25), 0 0 0 3px rgba(255, 255, 255, 0.18), 0 0 14px 3px rgba(255, 255, 255, 0.25);
 }
@@ -251,6 +260,8 @@ code {
   background-position: -28px -103px;
   background-size: 175%;
   z-index: 1000;
+  -webkit-transform: scale(var(--boost, 1));
+          transform: scale(var(--boost, 1));
   -webkit-box-shadow: 0 0 10px 2px rgba(255, 107, 0, 0.4), 0 0 22px 11px rgba(255, 203, 0, 0.13);
           box-shadow: 0 0 10px 2px rgba(255, 107, 0, 0.4), 0 0 22px 11px rgba(255, 203, 0, 0.13);
   -webkit-animation: sunGlow 6s ease-in-out infinite;
@@ -320,8 +331,9 @@ code {
   margin-left: -9px;
   margin-top: -9px;
   border-radius: 100px;
-  -webkit-box-shadow: 0 -10px 0 -7px #d9d9d9, 0 -10px 0 -6px rgba(255, 255, 255, 0.25);
-          box-shadow: 0 -10px 0 -7px #d9d9d9, 0 -10px 0 -6px rgba(255, 255, 255, 0.25);
+  /* 月球直径 = 4px × --boost，缩放补偿与行星保持一致（--boost=1 时与原值相同） */
+  -webkit-box-shadow: 0 calc(-10px * var(--boost, 1)) 0 calc(var(--boost, 1) * 2px - 9px) #d9d9d9, 0 calc(-10px * var(--boost, 1)) 0 calc(var(--boost, 1) * 3px - 9px) rgba(255, 255, 255, 0.25);
+          box-shadow: 0 calc(-10px * var(--boost, 1)) 0 calc(var(--boost, 1) * 2px - 9px) #d9d9d9, 0 calc(-10px * var(--boost, 1)) 0 calc(var(--boost, 1) * 3px - 9px) rgba(255, 255, 255, 0.25);
   -webkit-animation: orb calc(var(--earth-year) * 0.0748012) linear infinite;
           animation: orb calc(var(--earth-year) * 0.0748012) linear infinite;
 }
@@ -382,14 +394,15 @@ code {
 .saturn:after {
   position: absolute;
   content: "";
-  height: 2.34%;
-  width: 4.676%;
+  /* 用 calc 跟随 --boost，否则小屏下星球被放大、环却没放大，环会被星球盖住 */
+  height: calc(2.34% * var(--boost, 1));
+  width: calc(4.676% * var(--boost, 1));
   left: 50%;
   top: 0px;
   -webkit-transform: rotateZ(-52deg);
           transform: rotateZ(-52deg);
-  margin-left: -2.3%;
-  margin-top: -1.2%;
+  margin-left: calc(-2.3% * var(--boost, 1));
+  margin-top: calc(-1.2% * var(--boost, 1));
   border-radius: 50% 50% 50% 50%;
   -webkit-box-shadow: 0 1px 0 1px #987641, 3px 1px 0 #987641, -3px 1px 0 #987641;
           box-shadow: 0 1px 0 1px #987641, 3px 1px 0 #987641, -3px 1px 0 #987641;
@@ -542,16 +555,18 @@ code {
   50%      { opacity: .55; }
 }
 
-/* ── 响应式：整体等比缩放，避免小屏溢出/横滚 ────────────── */
+/* ── 响应式：轨道整体等比缩放，同时给天体本体做尺寸补偿 ────
+   --scale 缩小轨道半径，--boost 把星球/土星环/月球按反比放大，
+   否则 4px 的水星在 375px 屏上会缩成 1px 看不见。            */
 @media screen and (max-width: 1100px) {
-  .solar-syst { --scale: .8; }
+  .solar-syst { --scale: .8;  --boost: 1.15; }
 }
 @media screen and (max-width: 900px) {
-  .solar-syst { --scale: .62; }
+  .solar-syst { --scale: .62; --boost: 1.4; }
   .description { width: 40%; }
 }
 @media screen and (max-width: 640px) {
-  .solar-syst { --scale: .45; }
+  .solar-syst { --scale: .45; --boost: 1.7; }
   .description {
     width: 100%;
     max-width: none;
@@ -562,7 +577,153 @@ code {
   .legend { display: none; }
 }
 @media screen and (max-width: 420px) {
-  .solar-syst { --scale: .34; }
+  .solar-syst { --scale: .34; --boost: 2; }
+}
+
+/* ── 悬停信息卡：用 :has() 把「悬停轨道」映射到对应卡片 ──── */
+.info-panel {
+  position: fixed;
+  right: 26px;
+  bottom: 26px;
+  width: 330px;
+  max-width: calc(100vw - 52px);
+  z-index: 1000;
+  /* 关键：不能挡住轨道的 hover，否则卡片出现就会把 hover 打断导致闪烁 */
+  pointer-events: none;
+  color: rgba(255, 255, 255, .9);
+}
+.info-hint {
+  font-size: .78em;
+  line-height: 1.8em;
+  text-align: right;
+  opacity: .5;
+}
+
+.card {
+  display: none;
+  padding: 16px 18px 18px;
+  border-radius: 14px;
+  background: linear-gradient(160deg, rgba(30, 39, 62, 0.88), rgba(9, 12, 21, 0.92));
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  -webkit-backdrop-filter: blur(10px);
+          backdrop-filter: blur(10px);
+  box-shadow: 0 20px 46px rgba(0, 0, 0, 0.5);
+  -webkit-animation: cardIn .2s ease-out;
+          animation: cardIn .2s ease-out;
+}
+.card header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.card .dot {
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  flex: none;
+  box-shadow: inset 0 1px 0 -1px rgba(0, 0, 0, .55), 0 0 10px rgba(255, 255, 255, .3);
+}
+.card h2 {
+  margin: 0;
+  font-size: 1.05em;
+  font-weight: 600;
+  letter-spacing: .02em;
+}
+.card h2 small {
+  font-size: .68em;
+  font-weight: 400;
+  opacity: .5;
+  margin-left: 6px;
+  letter-spacing: .05em;
+}
+.card .tag {
+  margin-left: auto;
+  flex: none;
+  font-size: .64em;
+  padding: 3px 9px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, .22);
+  opacity: .68;
+}
+.card dl {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 5px 14px;
+  margin: 14px 0 0;
+  font-size: .76em;
+  line-height: 1.5em;
+}
+.card dt {
+  opacity: .55;
+  white-space: nowrap;
+}
+.card dd {
+  margin: 0;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+.card .note {
+  margin-top: 12px;
+  padding-top: 10px;
+  border-top: 1px solid rgba(255, 255, 255, .1);
+  font-size: .7em;
+  line-height: 1.75em;
+  opacity: .62;
+}
+
+/* 同时支持 :hover 与 :focus —— 触屏点一下、键盘 Tab 也能出卡片 */
+body:has(.sun:is(:hover, :focus))            .card-sun,
+body:has(.mercury:is(:hover, :focus))        .card-mercury,
+body:has(.venus:is(:hover, :focus))          .card-venus,
+body:has(.earth:is(:hover, :focus))          .card-earth,
+body:has(.mars:is(:hover, :focus))           .card-mars,
+body:has(.asteroids-belt:is(:hover, :focus)) .card-belt,
+body:has(.jupiter:is(:hover, :focus))        .card-jupiter,
+body:has(.saturn:is(:hover, :focus))         .card-saturn,
+body:has(.uranus:is(:hover, :focus))         .card-uranus,
+body:has(.neptune:is(:hover, :focus))        .card-neptune,
+body:has(.pluto:is(:hover, :focus))          .card-pluto {
+  display: block;
+}
+body:has(.solar-syst div:is(:hover, :focus)) .info-hint {
+  display: none;
+}
+.solar-syst div:focus {
+  outline: none;
+}
+
+@-webkit-keyframes cardIn {
+  from { opacity: 0; -webkit-transform: translateY(10px); transform: translateY(10px); }
+  to   { opacity: 1; -webkit-transform: none; transform: none; }
+}
+@keyframes cardIn {
+  from { opacity: 0; -webkit-transform: translateY(10px); transform: translateY(10px); }
+  to   { opacity: 1; -webkit-transform: none; transform: none; }
+}
+
+@media screen and (max-width: 1100px) {
+  .info-panel { width: 300px; right: 18px; bottom: 18px; }
+}
+@media screen and (max-width: 900px) {
+  .info-panel { width: 260px; right: 12px; bottom: 12px; }
+  .card dl { font-size: .72em; }
+}
+/* ≤640px：改成贴底的窄卡片，触屏点一下天体同样会触发 :hover / :focus */
+@media screen and (max-width: 640px) {
+  .info-panel {
+    left: 10px;
+    right: 10px;
+    bottom: 10px;
+    width: auto;
+    max-width: none;
+  }
+  .card {
+    padding: 12px 14px 14px;
+    border-radius: 12px;
+  }
+  .card dl { font-size: .7em; gap: 4px 10px; }
+  .card .note { display: none; }
+  .info-hint { font-size: .72em; }
 }
 
 /* ── 无障碍：尊重「减弱动态效果」系统偏好 ───────────────── */

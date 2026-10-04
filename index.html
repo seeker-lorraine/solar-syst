@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="纯 HTML + CSS 实现的太阳系公转动画：太阳、八大行星、冥王星与小行星带按真实公转周期等比运行，零 JavaScript。">
+  <meta name="description" content="纯 HTML + CSS 实现的太阳系公转动画：太阳、八大行星、冥王星与小行星带按真实公转周期等比运行，零 JavaScript。悬停轨道可查看天体真实数据。">
   <meta name="theme-color" content="#050608">
   <title>太阳系 · Solar System</title>
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><circle cx='16' cy='16' r='6' fill='%23ffd000'/><circle cx='16' cy='16' r='12' fill='none' stroke='%2366a6e5' stroke-width='1.5'/></svg>">
@@ -33,19 +33,228 @@
     <p class="author">Made with <span class="heart">&hearts;</span> by Lorraine</p>
   </div>
 
+  <!-- 每个轨道都可聚焦（tabindex），这样鼠标悬浮、触屏点按、键盘 Tab 三种方式都能唤出数据卡 -->
   <div class="solar-syst">
-    <div class='sun' title='太阳'></div>
-    <div class='mercury' title='水星 · 公转 87.5 天'></div>
-    <div class='venus' title='金星 · 公转 224.7 天'></div>
-    <div class='earth' title='地球 · 公转 365.3 天（含月球 27.3 天）'></div>
-    <div class='mars' title='火星 · 公转 687 天'></div>
-    <div class='jupiter' title='木星 · 公转 11.9 年'></div>
-    <div class='saturn' title='土星 · 公转 29.5 年'></div>
-    <div class='uranus' title='天王星 · 公转 84 年'></div>
-    <div class='neptune' title='海王星 · 公转 165 年'></div>
-    <div class='pluto' title='冥王星 · 公转 248 年'></div>
-    <div class='asteroids-belt' title='小行星带 · 约 6 年一周'></div>
+    <div class='sun' tabindex='0' aria-label='太阳'></div>
+    <div class='mercury' tabindex='0' aria-label='水星'></div>
+    <div class='venus' tabindex='0' aria-label='金星'></div>
+    <div class='earth' tabindex='0' aria-label='地球'></div>
+    <div class='mars' tabindex='0' aria-label='火星'></div>
+    <div class='jupiter' tabindex='0' aria-label='木星'></div>
+    <div class='saturn' tabindex='0' aria-label='土星'></div>
+    <div class='uranus' tabindex='0' aria-label='天王星'></div>
+    <div class='neptune' tabindex='0' aria-label='海王星'></div>
+    <div class='pluto' tabindex='0' aria-label='冥王星'></div>
+    <div class='asteroids-belt' tabindex='0' aria-label='小行星带'></div>
   </div>
+
+  <aside class="info-panel">
+    <p class="info-hint">将鼠标悬停（或点按、Tab 聚焦）到任意轨道 / 天体上，这里会显示它的真实数据。</p>
+
+    <section class="card card-sun">
+      <header><i class="dot dot-sun"></i><h2>太阳<small>Sun</small></h2><span class="tag">G2V 主序星</span></header>
+      <dl>
+        <dt>赤道直径</dt><dd>1,392,700 km</dd>
+        <dt>质量</dt><dd>1.989 × 10³⁰ kg</dd>
+        <dt>占太阳系质量</dt><dd>99.86 %</dd>
+        <dt>光球温度</dt><dd>5,505 °C（5,772 K）</dd>
+        <dt>核心温度</dt><dd>约 1,500 万 °C</dd>
+        <dt>自转周期</dt><dd>25.4 天（赤道）</dd>
+        <dt>年龄</dt><dd>约 46 亿年</dd>
+        <dt>行星系</dt><dd>8 颗行星 + 已知矮行星 5 颗</dd>
+      </dl>
+      <p class="note">每秒把约 6 亿吨氢聚变成氦，地球接收到的能量仅为其总辐射的二十二亿分之一。</p>
+    </section>
+
+    <section class="card card-mercury">
+      <header><i class="dot dot-mercury"></i><h2>水星<small>Mercury</small></h2><span class="tag">类地行星</span></header>
+      <dl>
+        <dt>赤道直径</dt><dd>4,879 km</dd>
+        <dt>质量</dt><dd>3.30 × 10²³ kg（0.055 地球）</dd>
+        <dt>平均密度</dt><dd>5.43 g/cm³</dd>
+        <dt>表面重力</dt><dd>3.70 m/s²</dd>
+        <dt>公转周期</dt><dd>87.97 天</dd>
+        <dt>自转周期</dt><dd>58.65 天</dd>
+        <dt>轨道速度</dt><dd>47.4 km/s</dd>
+        <dt>日距</dt><dd>0.387 AU（5,790 万 km）</dd>
+        <dt>表面温度</dt><dd>−173 ~ 427 °C</dd>
+        <dt>轴倾角</dt><dd>0.034°</dd>
+        <dt>卫星数</dt><dd>0</dd>
+        <dt>本页动画周期</dt><dd>7.19 s</dd>
+      </dl>
+      <p class="note">太阳系最小的行星，也是公转最快的行星；一个「水星日」（自转一周）比它的一年还长。</p>
+    </section>
+
+    <section class="card card-venus">
+      <header><i class="dot dot-venus"></i><h2>金星<small>Venus</small></h2><span class="tag">类地行星</span></header>
+      <dl>
+        <dt>赤道直径</dt><dd>12,104 km</dd>
+        <dt>质量</dt><dd>4.87 × 10²⁴ kg（0.815 地球）</dd>
+        <dt>平均密度</dt><dd>5.24 g/cm³</dd>
+        <dt>表面重力</dt><dd>8.87 m/s²</dd>
+        <dt>公转周期</dt><dd>224.70 天</dd>
+        <dt>自转周期</dt><dd>−243.02 天（逆行）</dd>
+        <dt>轨道速度</dt><dd>35.0 km/s</dd>
+        <dt>日距</dt><dd>0.723 AU（1.082 亿 km）</dd>
+        <dt>表面温度</dt><dd>464 °C（均温）</dd>
+        <dt>表面气压</dt><dd>92 bar（地球的 92 倍）</dd>
+        <dt>轴倾角</dt><dd>177.36°</dd>
+        <dt>卫星数</dt><dd>0</dd>
+        <dt>本页动画周期</dt><dd>18.46 s</dd>
+      </dl>
+      <p class="note">浓密的二氧化碳大气造成失控温室效应，是太阳系最热的行星；自转方向与公转相反。</p>
+    </section>
+
+    <section class="card card-earth">
+      <header><i class="dot dot-earth"></i><h2>地球<small>Earth</small></h2><span class="tag">类地行星</span></header>
+      <dl>
+        <dt>赤道直径</dt><dd>12,756 km</dd>
+        <dt>质量</dt><dd>5.972 × 10²⁴ kg</dd>
+        <dt>平均密度</dt><dd>5.51 g/cm³</dd>
+        <dt>表面重力</dt><dd>9.80 m/s²</dd>
+        <dt>公转周期</dt><dd>365.256 天</dd>
+        <dt>自转周期</dt><dd>23 h 56 min 4 s</dd>
+        <dt>轨道速度</dt><dd>29.8 km/s</dd>
+        <dt>日距</dt><dd>1.000 AU（1.496 亿 km）</dd>
+        <dt>平均温度</dt><dd>15 °C</dd>
+        <dt>轴倾角</dt><dd>23.44°</dd>
+        <dt>卫星数</dt><dd>1（月球）</dd>
+        <dt>本页动画周期</dt><dd>30 s</dd>
+      </dl>
+      <p class="note">月球：直径 3,475 km，距地 384,400 km，绕地 27.32 天（本页 2.24 s），表面重力 1.62 m/s²。</p>
+    </section>
+
+    <section class="card card-mars">
+      <header><i class="dot dot-mars"></i><h2>火星<small>Mars</small></h2><span class="tag">类地行星</span></header>
+      <dl>
+        <dt>赤道直径</dt><dd>6,792 km</dd>
+        <dt>质量</dt><dd>6.42 × 10²³ kg（0.107 地球）</dd>
+        <dt>平均密度</dt><dd>3.93 g/cm³</dd>
+        <dt>表面重力</dt><dd>3.71 m/s²</dd>
+        <dt>公转周期</dt><dd>686.98 天</dd>
+        <dt>自转周期</dt><dd>24 h 37 min</dd>
+        <dt>轨道速度</dt><dd>24.1 km/s</dd>
+        <dt>日距</dt><dd>1.524 AU（2.279 亿 km）</dd>
+        <dt>平均温度</dt><dd>−65 °C</dd>
+        <dt>轴倾角</dt><dd>25.19°</dd>
+        <dt>卫星数</dt><dd>2（火卫一、火卫二）</dd>
+        <dt>本页动画周期</dt><dd>56.43 s</dd>
+      </dl>
+      <p class="note">拥有太阳系最高的火山奥林帕斯山（约 22 km）与最长的峡谷水手号峡谷（约 4,000 km）。</p>
+    </section>
+
+    <section class="card card-belt">
+      <header><i class="dot dot-belt"></i><h2>小行星带<small>Asteroid Belt</small></h2><span class="tag">小天体带</span></header>
+      <dl>
+        <dt>分布范围</dt><dd>2.1 ~ 3.3 AU</dd>
+        <dt>公转周期</dt><dd>3 ~ 6 年</dd>
+        <dt>直径 &gt; 1 km 数量</dt><dd>约 100 万颗以上</dd>
+        <dt>总质量</dt><dd>约 2.4 × 10²¹ kg</dd>
+        <dt>相当于月球质量</dt><dd>约 3 %</dd>
+        <dt>最大天体</dt><dd>谷神星（直径约 940 km）</dd>
+        <dt>其次</dt><dd>灶神星 525 km / 智神星 512 km</dd>
+        <dt>本页动画周期</dt><dd>179.96 s</dd>
+      </dl>
+      <p class="note">看似密集，实际天体间距以百万公里计，探测器穿越时几乎不可能撞上任何东西。</p>
+    </section>
+
+    <section class="card card-jupiter">
+      <header><i class="dot dot-jupiter"></i><h2>木星<small>Jupiter</small></h2><span class="tag">气态巨行星</span></header>
+      <dl>
+        <dt>赤道直径</dt><dd>142,984 km</dd>
+        <dt>质量</dt><dd>1.898 × 10²⁷ kg（317.8 地球）</dd>
+        <dt>平均密度</dt><dd>1.33 g/cm³</dd>
+        <dt>表面重力</dt><dd>24.79 m/s²</dd>
+        <dt>公转周期</dt><dd>11.86 年</dd>
+        <dt>自转周期</dt><dd>9 h 55 min</dd>
+        <dt>轨道速度</dt><dd>13.1 km/s</dd>
+        <dt>日距</dt><dd>5.204 AU（7.786 亿 km）</dd>
+        <dt>云顶温度</dt><dd>−108 °C</dd>
+        <dt>轴倾角</dt><dd>3.13°</dd>
+        <dt>卫星数</dt><dd>95+（已确认，持续增加）</dd>
+        <dt>本页动画周期</dt><dd>355.72 s</dd>
+      </dl>
+      <p class="note">质量超过其余七颗行星总和的 2 倍；大红斑是一场持续至少 350 年的反气旋风暴，直径约 1.6 万 km。</p>
+    </section>
+
+    <section class="card card-saturn">
+      <header><i class="dot dot-saturn"></i><h2>土星<small>Saturn</small></h2><span class="tag">气态巨行星</span></header>
+      <dl>
+        <dt>赤道直径</dt><dd>120,536 km</dd>
+        <dt>质量</dt><dd>5.683 × 10²⁶ kg（95.2 地球）</dd>
+        <dt>平均密度</dt><dd>0.69 g/cm³</dd>
+        <dt>表面重力</dt><dd>10.44 m/s²</dd>
+        <dt>公转周期</dt><dd>29.45 年</dd>
+        <dt>自转周期</dt><dd>10 h 39 min</dd>
+        <dt>轨道速度</dt><dd>9.7 km/s</dd>
+        <dt>日距</dt><dd>9.583 AU（14.34 亿 km）</dd>
+        <dt>云顶温度</dt><dd>−139 °C</dd>
+        <dt>轴倾角</dt><dd>26.73°</dd>
+        <dt>卫星数</dt><dd>146（已确认）</dd>
+        <dt>环系规模</dt><dd>宽约 28 万 km，厚约 10 m ~ 1 km</dd>
+        <dt>本页动画周期</dt><dd>882.70 s</dd>
+      </dl>
+      <p class="note">平均密度小于水，是太阳系唯一理论上能「浮起来」的行星；环主要由水冰碎块组成。</p>
+    </section>
+
+    <section class="card card-uranus">
+      <header><i class="dot dot-uranus"></i><h2>天王星<small>Uranus</small></h2><span class="tag">冰巨行星</span></header>
+      <dl>
+        <dt>赤道直径</dt><dd>51,118 km</dd>
+        <dt>质量</dt><dd>8.681 × 10²⁵ kg（14.5 地球）</dd>
+        <dt>平均密度</dt><dd>1.27 g/cm³</dd>
+        <dt>表面重力</dt><dd>8.87 m/s²</dd>
+        <dt>公转周期</dt><dd>84.01 年</dd>
+        <dt>自转周期</dt><dd>−17 h 14 min（逆行）</dd>
+        <dt>轨道速度</dt><dd>6.8 km/s</dd>
+        <dt>日距</dt><dd>19.191 AU（28.71 亿 km）</dd>
+        <dt>云顶温度</dt><dd>−197 °C</dd>
+        <dt>轴倾角</dt><dd>97.77°</dd>
+        <dt>卫星数</dt><dd>28</dd>
+        <dt>本页动画周期</dt><dd>2512.40 s</dd>
+      </dl>
+      <p class="note">自转轴几乎躺倒在轨道面上，是「侧躺着」自转的行星，两极各有 42 年的极昼与极夜。</p>
+    </section>
+
+    <section class="card card-neptune">
+      <header><i class="dot dot-neptune"></i><h2>海王星<small>Neptune</small></h2><span class="tag">冰巨行星</span></header>
+      <dl>
+        <dt>赤道直径</dt><dd>49,528 km</dd>
+        <dt>质量</dt><dd>1.024 × 10²⁶ kg（17.1 地球）</dd>
+        <dt>平均密度</dt><dd>1.64 g/cm³</dd>
+        <dt>表面重力</dt><dd>11.15 m/s²</dd>
+        <dt>公转周期</dt><dd>164.79 年</dd>
+        <dt>自转周期</dt><dd>16 h 6 min</dd>
+        <dt>轨道速度</dt><dd>5.4 km/s</dd>
+        <dt>日距</dt><dd>30.07 AU（44.98 亿 km）</dd>
+        <dt>云顶温度</dt><dd>−201 °C</dd>
+        <dt>轴倾角</dt><dd>28.32°</dd>
+        <dt>卫星数</dt><dd>16（海卫一最大）</dd>
+        <dt>最大风速</dt><dd>约 2,100 km/h</dd>
+        <dt>本页动画周期</dt><dd>4911.78 s</dd>
+      </dl>
+      <p class="note">唯一先由数学计算预言、再被望远镜证实的行星（1846 年）；拥有太阳系最猛烈的风。</p>
+    </section>
+
+    <section class="card card-pluto">
+      <header><i class="dot dot-pluto"></i><h2>冥王星<small>Pluto</small></h2><span class="tag">矮行星</span></header>
+      <dl>
+        <dt>赤道直径</dt><dd>2,377 km</dd>
+        <dt>质量</dt><dd>1.31 × 10²² kg（0.0022 地球）</dd>
+        <dt>平均密度</dt><dd>1.86 g/cm³</dd>
+        <dt>表面重力</dt><dd>0.62 m/s²</dd>
+        <dt>公转周期</dt><dd>247.94 年</dd>
+        <dt>自转周期</dt><dd>−6.39 天（逆行）</dd>
+        <dt>轨道速度</dt><dd>4.74 km/s</dd>
+        <dt>日距</dt><dd>39.48 AU（59.06 亿 km）</dd>
+        <dt>表面温度</dt><dd>−229 °C</dd>
+        <dt>轴倾角</dt><dd>122.53°</dd>
+        <dt>卫星数</dt><dd>5（卡戎最大，1,212 km）</dd>
+        <dt>本页动画周期</dt><dd>7439.71 s</dd>
+      </dl>
+      <p class="note">1930 年发现，2006 年 IAU 重新定义行星后归为矮行星；轨道倾角 17°，与海王星形成 2:3 共振。</p>
+    </section>
+  </aside>
 
 </body>
 
