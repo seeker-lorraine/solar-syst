@@ -104,4 +104,4 @@
 
 ---
 
-**Full Changelog**: https://github.com/seeker-lorraine/solar-syst/commits/v1.0.0
+**Full Changelog**: https://github.com/seeker-lorraine/solar-syst/compare/v1.0.0...v1.1.0
