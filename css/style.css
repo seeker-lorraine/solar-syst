@@ -173,6 +173,7 @@ a.icon, a:visited.icon {
 .dot-mercury { background: #9f5e26; }
 .dot-venus   { background: #beb768; }
 .dot-earth   { background: #11abe9; }
+.dot-moon    { background: #d9d9d9; }
 .dot-mars    { background: #cf3921; }
 .dot-jupiter { background: #c76e2a; }
 .dot-saturn  { background: #e7c194; }
@@ -447,6 +448,7 @@ code {
 .earth:after {
   position: absolute;
   content: "";
+  /* 仅作地球的命中区；月球本体改为独立的 .moon 元素（见下方） */
   height: 18px;
   width: 18px;
   left: 50%;
@@ -454,11 +456,55 @@ code {
   margin-left: -9px;
   margin-top: -9px;
   border-radius: 100px;
-  /* 月球直径 = 4px × --boost，缩放补偿与行星保持一致（--boost=1 时与原值相同） */
-  -webkit-box-shadow: 0 calc(-10px * var(--boost, 1)) 0 calc(var(--boost, 1) * 2px - 9px) #d9d9d9, 0 calc(-10px * var(--boost, 1)) 0 calc(var(--boost, 1) * 3px - 9px) rgba(255, 255, 255, 0.25);
-          box-shadow: 0 calc(-10px * var(--boost, 1)) 0 calc(var(--boost, 1) * 2px - 9px) #d9d9d9, 0 calc(-10px * var(--boost, 1)) 0 calc(var(--boost, 1) * 3px - 9px) rgba(255, 255, 255, 0.25);
-  -webkit-animation: orb calc(var(--earth-year) * 0.0748012) linear infinite;
-          animation: orb calc(var(--earth-year) * 0.0748012) linear infinite;
+  background: transparent;
+}
+/* 月球：地球的子元素，与行星同构（轨道盘 orb + 本体 billboard + --tex 超采样）。
+   旧实现用 box-shadow 画月球，但外阴影不会绘制在元素边框盒以内 —— 桌面端
+   （--boost=1）月球下缘恰好落进 .earth:after 的边框盒被裁掉，显示成半圆；
+   手机端 --boost 较大把月球推得更远才逃过裁剪。改为独立元素后不再有此问题。 */
+.solar-syst div.moon {
+  pointer-events: none;          /* 轨道盘不接收事件，避免挡住地球的点击 */
+  border: 0;
+  top: 0;                        /* 覆盖 .solar-syst div 的 top:50%，定位到地球本体处 */
+  height: calc(20px * var(--boost, 1));
+  width: calc(20px * var(--boost, 1));
+  margin-top: calc(-10px * var(--boost, 1));
+  margin-left: calc(-10px * var(--boost, 1));
+  /* --dur 供 :before 的 billboard 使用。月球嵌在地球轨道盘内，帧旋转 =
+     地球盘自转 + 本轨道盘自转，billboard 周期必须等于两者的合成视周期，
+     否则倾斜视角后残余旋转会把月球圆面带出屏幕平面，显示成椭圆。
+     轨道盘自转相应放慢（0.0808488 = 0.0748012 / (1 - 0.0748012)），
+     使合成后的公转视周期恰好仍为 0.0748012 × --earth-year（2.24 s），
+     与 billboard 逐帧精确对消：-1 - 12.3687 + 13.3687 = 0。 */
+  --dur: calc(var(--earth-year) * 0.0748012);
+  -webkit-transform-style: preserve-3d;
+          transform-style: preserve-3d;
+  -webkit-animation: orb calc(var(--earth-year) * 0.0808488) linear infinite;
+          animation: orb calc(var(--earth-year) * 0.0808488) linear infinite;
+}
+.moon:before {
+  height: calc(4px * var(--tex, 1));
+  width: calc(4px * var(--tex, 1));
+  background: radial-gradient(circle at 32% 28%, #ffffff, #d9d9d9 55%, #8f8f8f);
+  margin-top: calc(-2px * var(--tex, 1));
+  margin-left: calc(-2px * var(--tex, 1));
+}
+/* 月球很小，补一圈跟随月球转动的隐形命中区（半径小于地月距离，不遮地球本体） */
+.moon:after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 0;
+  width: calc(12px * var(--boost, 1));
+  height: calc(12px * var(--boost, 1));
+  margin-top: calc(-6px * var(--boost, 1));
+  margin-left: calc(-6px * var(--boost, 1));
+  border-radius: 50%;
+  background: transparent;
+}
+.moon:before,
+.moon:after {
+  pointer-events: auto;
 }
 
 .mars {
@@ -911,6 +957,7 @@ body:has(.sun:is(:hover, :focus))            .card-sun,
 body:has(.mercury:is(:hover, :focus))        .card-mercury,
 body:has(.venus:is(:hover, :focus))          .card-venus,
 body:has(.earth:is(:hover, :focus))          .card-earth,
+body:has(.moon:is(:hover, :focus))           .card-moon,
 body:has(.mars:is(:hover, :focus))           .card-mars,
 body:has(.asteroids-belt:is(:hover, :focus)) .card-belt,
 body:has(.jupiter:is(:hover, :focus))        .card-jupiter,
@@ -928,6 +975,11 @@ body:has(.solar-syst div:is(:hover, :focus)) .info-hint {
 }
 /* 正在拖拽视角时不要弹数据卡（.card 的 :has 规则特异性更高，故用 !important） */
 body.is-dragging .card {
+  display: none !important;
+}
+/* 月球是 .earth 的子元素：悬停 / 选中月球会同时触发祖先 .earth 的 :hover，
+   这里抑制地球卡，保证只显示月球卡 */
+body:has(.moon:is(:hover, :focus)) .card-earth {
   display: none !important;
 }
 
