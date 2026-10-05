@@ -252,8 +252,9 @@ code {
 }
 
 /* 小星球（水星 4px / 冥王星 3px）太难点中，补一圈跟随星球的隐形命中区。
-   地球与土星已用 ::after 画月球轨道 / 土星环，本身就充当命中区，故排除。 */
-.solar-syst .universe > div:not(.sun):not(.asteroids-belt):not(.earth):not(.saturn):after {
+   地球（月球轨道）与四颗巨行星（行星环）的 ::after 另有用途，
+   本身就充当命中区，故排除。 */
+.solar-syst .universe > div:not(.sun):not(.asteroids-belt):not(.earth):not(.saturn):not(.jupiter):not(.uranus):not(.neptune):after {
   content: "";
   position: absolute;
   left: 50%;
@@ -497,6 +498,26 @@ code {
   margin-top: calc(-9px * var(--tex, 1));
   margin-left: calc(-9px * var(--tex, 1));
 }
+/* 木星环：真实存在的暗淡尘埃主环（1979 年旅行者 1 号发现），宽约 1.7 个行星半径。
+   结构与土星环一致：跟随 --boost / --tex 超采样，orbRing 反向抵消公转自转。 */
+.jupiter:after {
+  position: absolute;
+  content: "";
+  height: calc(9px * var(--boost, 1) * var(--tex, 1));
+  width: calc(31px * var(--boost, 1) * var(--tex, 1));
+  left: 50%;
+  top: 0px;
+  margin-left: calc(-15.5px * var(--boost, 1) * var(--tex, 1));
+  margin-top: calc(-4.5px * var(--boost, 1) * var(--tex, 1));
+  border-radius: 50%;
+  --rs: calc(1 / var(--tex, 1));
+  -webkit-box-shadow: 0 calc(1px * var(--boost, 1) * var(--tex, 1)) 0 calc(1px * var(--boost, 1) * var(--tex, 1)) rgba(196, 128, 78, 0.3), calc(3px * var(--boost, 1) * var(--tex, 1)) calc(1px * var(--boost, 1) * var(--tex, 1)) 0 rgba(196, 128, 78, 0.3), calc(-3px * var(--boost, 1) * var(--tex, 1)) calc(1px * var(--boost, 1) * var(--tex, 1)) 0 rgba(196, 128, 78, 0.3);
+          box-shadow: 0 calc(1px * var(--boost, 1) * var(--tex, 1)) 0 calc(1px * var(--boost, 1) * var(--tex, 1)) rgba(196, 128, 78, 0.3), calc(3px * var(--boost, 1) * var(--tex, 1)) calc(1px * var(--boost, 1) * var(--tex, 1)) 0 rgba(196, 128, 78, 0.3), calc(-3px * var(--boost, 1) * var(--tex, 1)) calc(1px * var(--boost, 1) * var(--tex, 1)) 0 rgba(196, 128, 78, 0.3);
+  -webkit-animation: orbRing var(--dur) linear infinite reverse;
+          animation: orbRing var(--dur) linear infinite reverse;
+  -webkit-transform-origin: 50% 50%;
+          transform-origin: 50% 50%;
+}
 
 .saturn {
   height: 440px;
@@ -519,23 +540,23 @@ code {
 .saturn:after {
   position: absolute;
   content: "";
-  /* 用 calc 跟随 --boost，否则小屏下星球被放大、环却没放大，环会被星球盖住 */
-  height: calc(2.34% * var(--boost, 1));
-  width: calc(4.676% * var(--boost, 1));
+  /* 用 calc 跟随 --boost，否则小屏下星球被放大、环却没放大，环会被星球盖住。
+     同时按 --tex 超采样绘制，由 orbRing 里的 scale(var(--rs)) 缩回，
+     与星球本体一致，避免移动端缩放后环先于星球发糊。 */
+  height: calc(2.34% * var(--boost, 1) * var(--tex, 1));
+  width: calc(4.676% * var(--boost, 1) * var(--tex, 1));
   left: 50%;
   top: 0px;
-  -webkit-transform: rotateZ(-52deg);
-          transform: rotateZ(-52deg);
-  margin-left: calc(-2.3% * var(--boost, 1));
-  margin-top: calc(-1.2% * var(--boost, 1));
+  margin-left: calc(-2.3% * var(--boost, 1) * var(--tex, 1));
+  margin-top: calc(-1.2% * var(--boost, 1) * var(--tex, 1));
   border-radius: 50% 50% 50% 50%;
-  -webkit-box-shadow: 0 1px 0 1px #987641, 3px 1px 0 #987641, -3px 1px 0 #987641;
-          box-shadow: 0 1px 0 1px #987641, 3px 1px 0 #987641, -3px 1px 0 #987641;
-  -webkit-animation: orb var(--dur) linear infinite;
-          animation: orb var(--dur) linear infinite;
-  animation-direction: reverse;
-  -webkit-transform-origin: 52% 60%;
-          transform-origin: 52% 60%;
+  --rs: calc(1 / var(--tex, 1));
+  -webkit-box-shadow: 0 calc(1px * var(--boost, 1) * var(--tex, 1)) 0 calc(1px * var(--boost, 1) * var(--tex, 1)) #987641, calc(3px * var(--boost, 1) * var(--tex, 1)) calc(1px * var(--boost, 1) * var(--tex, 1)) 0 #987641, calc(-3px * var(--boost, 1) * var(--tex, 1)) calc(1px * var(--boost, 1) * var(--tex, 1)) 0 #987641;
+          box-shadow: 0 calc(1px * var(--boost, 1) * var(--tex, 1)) 0 calc(1px * var(--boost, 1) * var(--tex, 1)) #987641, calc(3px * var(--boost, 1) * var(--tex, 1)) calc(1px * var(--boost, 1) * var(--tex, 1)) 0 #987641, calc(-3px * var(--boost, 1) * var(--tex, 1)) calc(1px * var(--boost, 1) * var(--tex, 1)) 0 #987641;
+  -webkit-animation: orbRing var(--dur) linear infinite reverse;
+          animation: orbRing var(--dur) linear infinite reverse;
+  -webkit-transform-origin: 50% 50%;
+          transform-origin: 50% 50%;
 }
 
 .uranus {
@@ -556,6 +577,26 @@ code {
   margin-top: calc(-5px * var(--tex, 1));
   margin-left: calc(-5px * var(--tex, 1));
 }
+/* 天王星环：1977 年掩星观测发现，共 13 条窄环。因自转轴几乎躺倒（轴倾角 98°），
+   环近乎垂直于轨道面 —— 这里画成竖直的窄椭圆以示区别。 */
+.uranus:after {
+  position: absolute;
+  content: "";
+  height: calc(19px * var(--boost, 1) * var(--tex, 1));
+  width: calc(7px * var(--boost, 1) * var(--tex, 1));
+  left: 50%;
+  top: 0px;
+  margin-left: calc(-3.5px * var(--boost, 1) * var(--tex, 1));
+  margin-top: calc(-9.5px * var(--boost, 1) * var(--tex, 1));
+  border-radius: 50%;
+  --rs: calc(1 / var(--tex, 1));
+  -webkit-box-shadow: calc(1px * var(--boost, 1) * var(--tex, 1)) 0 0 calc(1px * var(--boost, 1) * var(--tex, 1)) rgba(158, 164, 172, 0.4), calc(1px * var(--boost, 1) * var(--tex, 1)) calc(3px * var(--boost, 1) * var(--tex, 1)) 0 rgba(158, 164, 172, 0.4), calc(1px * var(--boost, 1) * var(--tex, 1)) calc(-3px * var(--boost, 1) * var(--tex, 1)) 0 rgba(158, 164, 172, 0.4);
+          box-shadow: calc(1px * var(--boost, 1) * var(--tex, 1)) 0 0 calc(1px * var(--boost, 1) * var(--tex, 1)) rgba(158, 164, 172, 0.4), calc(1px * var(--boost, 1) * var(--tex, 1)) calc(3px * var(--boost, 1) * var(--tex, 1)) 0 rgba(158, 164, 172, 0.4), calc(1px * var(--boost, 1) * var(--tex, 1)) calc(-3px * var(--boost, 1) * var(--tex, 1)) 0 rgba(158, 164, 172, 0.4);
+  -webkit-animation: orbRing var(--dur) linear infinite reverse;
+          animation: orbRing var(--dur) linear infinite reverse;
+  -webkit-transform-origin: 50% 50%;
+          transform-origin: 50% 50%;
+}
 
 .neptune {
   height: 630px;
@@ -574,6 +615,25 @@ code {
   background: radial-gradient(circle at 32% 28%, #6fb0e6, #175e9e 55%, #08294f);
   margin-top: calc(-5px * var(--tex, 1));
   margin-left: calc(-5px * var(--tex, 1));
+}
+/* 海王星环：1989 年旅行者 2 号发现，共 5 条暗环，亚当斯环存在不完整的环弧 */
+.neptune:after {
+  position: absolute;
+  content: "";
+  height: calc(7px * var(--boost, 1) * var(--tex, 1));
+  width: calc(17px * var(--boost, 1) * var(--tex, 1));
+  left: 50%;
+  top: 0px;
+  margin-left: calc(-8.5px * var(--boost, 1) * var(--tex, 1));
+  margin-top: calc(-3.5px * var(--boost, 1) * var(--tex, 1));
+  border-radius: 50%;
+  --rs: calc(1 / var(--tex, 1));
+  -webkit-box-shadow: 0 calc(1px * var(--boost, 1) * var(--tex, 1)) 0 calc(1px * var(--boost, 1) * var(--tex, 1)) rgba(134, 154, 204, 0.3), calc(3px * var(--boost, 1) * var(--tex, 1)) calc(1px * var(--boost, 1) * var(--tex, 1)) 0 rgba(134, 154, 204, 0.3), calc(-3px * var(--boost, 1) * var(--tex, 1)) calc(1px * var(--boost, 1) * var(--tex, 1)) 0 rgba(134, 154, 204, 0.3);
+          box-shadow: 0 calc(1px * var(--boost, 1) * var(--tex, 1)) 0 calc(1px * var(--boost, 1) * var(--tex, 1)) rgba(134, 154, 204, 0.3), calc(3px * var(--boost, 1) * var(--tex, 1)) calc(1px * var(--boost, 1) * var(--tex, 1)) 0 rgba(134, 154, 204, 0.3), calc(-3px * var(--boost, 1) * var(--tex, 1)) calc(1px * var(--boost, 1) * var(--tex, 1)) 0 rgba(134, 154, 204, 0.3);
+  -webkit-animation: orbRing var(--dur) linear infinite reverse;
+          animation: orbRing var(--dur) linear infinite reverse;
+  -webkit-transform-origin: 50% 50%;
+          transform-origin: 50% 50%;
 }
 
 .asteroids-belt {
@@ -648,6 +708,29 @@ code {
   to {
     -webkit-transform: rotate(-360deg);
             transform: rotate(-360deg);
+  }
+}
+
+/* 行星环专用：与 orb 相同的反向公转抵消，但叠加 scale(var(--rs)) ——
+   环按 --tex 超采样绘制后由它缩回原始视觉尺寸（原理同星球的 billboard/--s） */
+@-webkit-keyframes orbRing {
+  from {
+    -webkit-transform: rotate(0deg) scale(var(--rs, 1));
+            transform: rotate(0deg) scale(var(--rs, 1));
+  }
+  to {
+    -webkit-transform: rotate(-360deg) scale(var(--rs, 1));
+            transform: rotate(-360deg) scale(var(--rs, 1));
+  }
+}
+@keyframes orbRing {
+  from {
+    -webkit-transform: rotate(0deg) scale(var(--rs, 1));
+            transform: rotate(0deg) scale(var(--rs, 1));
+  }
+  to {
+    -webkit-transform: rotate(-360deg) scale(var(--rs, 1));
+            transform: rotate(-360deg) scale(var(--rs, 1));
   }
 }
 
@@ -889,6 +972,14 @@ body.is-dragging .card {
   .solar-syst div:not(.sun):not(.asteroids-belt):before {
     -webkit-transform: rotateY(calc(-1 * var(--yaw, 0deg))) rotateX(calc(-1 * var(--pitch, 0deg))) scale(var(--s, 1));
             transform: rotateY(calc(-1 * var(--yaw, 0deg))) rotateX(calc(-1 * var(--pitch, 0deg))) scale(var(--s, 1));
+  }
+  /* 行星环同理：orbRing 里的 scale(var(--rs)) 不再生效，补静态缩放兜底 */
+  .solar-syst .saturn:after,
+  .solar-syst .jupiter:after,
+  .solar-syst .uranus:after,
+  .solar-syst .neptune:after {
+    -webkit-transform: scale(var(--rs, 1));
+            transform: scale(var(--rs, 1));
   }
   .solar-syst,
   .solar-syst div,
