@@ -206,6 +206,10 @@ code {
   --scale: 1;
   /* 天体本体的尺寸补偿：轨道缩小了，但星球不能跟着缩到看不见 */
   --boost: 1;
+  /* 纹理超采样倍数：星球伪元素先按此倍数放大绘制、再等比缩小显示（视觉尺寸不变）。
+     移动端合成层按元素原始尺寸光栅化贴图，3~18px 的小星球被 --zoom（最大 3）
+     和选中放大（2.6 倍）拉伸后会发糊；预放大 4 倍可保证放大后依然锐利。 */
+  --tex: 4;
   /* --zoom 由 js/view.js 写入（滚轮 / 双指缩放），删掉脚本时取兜底值 1 */
   -webkit-transform: scale(calc(var(--scale) * var(--zoom, 1)));
           transform: scale(calc(var(--scale) * var(--zoom, 1)));
@@ -331,52 +335,54 @@ code {
    billboard 动画同时抵消「轨道自转 + 视角旋转」，让星球始终正对镜头保持圆形，
    而轨道线仍正常变成椭圆。--dur 由各行星自己提供（与公转周期一致），
    --s 是本体缩放（含 hover / 选中时的放大），放进 transform 里而非独立 scale 属性，
-   这样移动端「动画 transform + 独立 scale 属性」的组合不会把伪元素压平。 */
+   这样移动端「动画 transform + 独立 scale 属性」的组合不会把伪元素压平。
+   --s 里除以 --tex：本体已按 --tex 放大绘制（见 .solar-syst 上的注释），这里缩回去。 */
 .solar-syst div:not(.sun):not(.asteroids-belt):before {
-  --s: var(--boost, 1);
+  --s: calc(var(--boost, 1) / var(--tex, 1));
   -webkit-animation: billboard var(--dur, 30s) linear infinite;
           animation: billboard var(--dur, 30s) linear infinite;
 }
 /* 悬停任意行星：本体放大并加一圈光晕 */
 .solar-syst div:not(.sun):not(.asteroids-belt):hover:before {
-  --s: calc(var(--boost, 1) * 2.2);
-  -webkit-box-shadow: inset 0 6px 0 -2px rgba(0, 0, 0, 0.25), 0 0 0 3px rgba(255, 255, 255, 0.18), 0 0 14px 3px rgba(255, 255, 255, 0.25);
-          box-shadow: inset 0 6px 0 -2px rgba(0, 0, 0, 0.25), 0 0 0 3px rgba(255, 255, 255, 0.18), 0 0 14px 3px rgba(255, 255, 255, 0.25);
+  --s: calc(var(--boost, 1) * 2.2 / var(--tex, 1));
+  -webkit-box-shadow: inset 0 calc(6px * var(--tex, 1)) 0 calc(-2px * var(--tex, 1)) rgba(0, 0, 0, 0.25), 0 0 0 calc(3px * var(--tex, 1)) rgba(255, 255, 255, 0.18), 0 0 calc(14px * var(--tex, 1)) calc(3px * var(--tex, 1)) rgba(255, 255, 255, 0.25);
+          box-shadow: inset 0 calc(6px * var(--tex, 1)) 0 calc(-2px * var(--tex, 1)) rgba(0, 0, 0, 0.25), 0 0 0 calc(3px * var(--tex, 1)) rgba(255, 255, 255, 0.18), 0 0 calc(14px * var(--tex, 1)) calc(3px * var(--tex, 1)) rgba(255, 255, 255, 0.25);
 }
 /* 从左侧列表选中（:focus）时的高亮，比 hover 更强一档，方便确认选中的是哪一颗 */
 .solar-syst div:not(.sun):not(.asteroids-belt):focus {
   border-color: rgba(255, 255, 255, 0.55);
 }
 .solar-syst div:not(.sun):not(.asteroids-belt):focus:before {
-  --s: calc(var(--boost, 1) * 2.6);
-  -webkit-box-shadow: inset 0 6px 0 -2px rgba(0, 0, 0, 0.25), 0 0 0 3px rgba(255, 255, 255, 0.3), 0 0 20px 5px rgba(255, 255, 255, 0.4);
-          box-shadow: inset 0 6px 0 -2px rgba(0, 0, 0, 0.25), 0 0 0 3px rgba(255, 255, 255, 0.3), 0 0 20px 5px rgba(255, 255, 255, 0.4);
+  --s: calc(var(--boost, 1) * 2.6 / var(--tex, 1));
+  -webkit-box-shadow: inset 0 calc(6px * var(--tex, 1)) 0 calc(-2px * var(--tex, 1)) rgba(0, 0, 0, 0.25), 0 0 0 calc(3px * var(--tex, 1)) rgba(255, 255, 255, 0.3), 0 0 calc(20px * var(--tex, 1)) calc(5px * var(--tex, 1)) rgba(255, 255, 255, 0.4);
+          box-shadow: inset 0 calc(6px * var(--tex, 1)) 0 calc(-2px * var(--tex, 1)) rgba(0, 0, 0, 0.25), 0 0 0 calc(3px * var(--tex, 1)) rgba(255, 255, 255, 0.3), 0 0 calc(20px * var(--tex, 1)) calc(5px * var(--tex, 1)) rgba(255, 255, 255, 0.4);
 }
 /* 太阳的 box-shadow 被 sunGlow 动画占用，改用 filter 做选中反馈 */
 .sun:focus {
   filter: brightness(1.25);
 }
 .solar-syst div:not(.asteroids-belt):before {
-  -webkit-box-shadow: inset 0 6px 0 -2px rgba(0, 0, 0, 0.25);
-          box-shadow: inset 0 6px 0 -2px rgba(0, 0, 0, 0.25);
+  -webkit-box-shadow: inset 0 calc(6px * var(--tex, 1)) 0 calc(-2px * var(--tex, 1)) rgba(0, 0, 0, 0.25);
+          box-shadow: inset 0 calc(6px * var(--tex, 1)) 0 calc(-2px * var(--tex, 1)) rgba(0, 0, 0, 0.25);
 }
 
 .sun {
   background: radial-gradient(ellipse at center, #ffd000 1%, #f9b700 39%, #f9b700 39%, #e06317 100%);
-  height: 40px;
-  width: 40px;
-  margin-top: -20px;
-  margin-left: -20px;
+  /* 宽高与阴影均按 --tex 超采样绘制，再由下方 transform 缩回，视觉尺寸不变（防缩放发糊） */
+  height: calc(40px * var(--tex, 1));
+  width: calc(40px * var(--tex, 1));
+  margin-top: calc(-20px * var(--tex, 1));
+  margin-left: calc(-20px * var(--tex, 1));
   background-clip: padding-box;
   border: 0 !important;
-  background-position: -28px -103px;
+  background-position: calc(-28px * var(--tex, 1)) calc(-103px * var(--tex, 1));
   background-size: 175%;
   z-index: 1000;
   /* 太阳不在轨道上自转，静态反向抵消视角旋转即可保持正圆 */
-  -webkit-transform: rotateY(calc(-1 * var(--yaw, 0deg))) rotateX(calc(-1 * var(--pitch, 0deg))) scale(var(--boost, 1));
-          transform: rotateY(calc(-1 * var(--yaw, 0deg))) rotateX(calc(-1 * var(--pitch, 0deg))) scale(var(--boost, 1));
-  -webkit-box-shadow: 0 0 10px 2px rgba(255, 107, 0, 0.4), 0 0 22px 11px rgba(255, 203, 0, 0.13);
-          box-shadow: 0 0 10px 2px rgba(255, 107, 0, 0.4), 0 0 22px 11px rgba(255, 203, 0, 0.13);
+  -webkit-transform: rotateY(calc(-1 * var(--yaw, 0deg))) rotateX(calc(-1 * var(--pitch, 0deg))) scale(calc(var(--boost, 1) / var(--tex, 1)));
+          transform: rotateY(calc(-1 * var(--yaw, 0deg))) rotateX(calc(-1 * var(--pitch, 0deg))) scale(calc(var(--boost, 1) / var(--tex, 1)));
+  -webkit-box-shadow: 0 0 calc(10px * var(--tex, 1)) calc(2px * var(--tex, 1)) rgba(255, 107, 0, 0.4), 0 0 calc(22px * var(--tex, 1)) calc(11px * var(--tex, 1)) rgba(255, 203, 0, 0.13);
+          box-shadow: 0 0 calc(10px * var(--tex, 1)) calc(2px * var(--tex, 1)) rgba(255, 107, 0, 0.4), 0 0 calc(22px * var(--tex, 1)) calc(11px * var(--tex, 1)) rgba(255, 203, 0, 0.13);
   -webkit-animation: sunGlow 6s ease-in-out infinite;
           animation: sunGlow 6s ease-in-out infinite;
 }
@@ -393,11 +399,11 @@ code {
           animation: orb var(--dur) linear infinite;
 }
 .mercury:before {
-  height: 4px;
-  width: 4px;
+  height: calc(4px * var(--tex, 1));
+  width: calc(4px * var(--tex, 1));
   background: radial-gradient(circle at 32% 28%, #d6a273, #9f5e26 55%, #4f2d10);
-  margin-top: -2px;
-  margin-left: -2px;
+  margin-top: calc(-2px * var(--tex, 1));
+  margin-left: calc(-2px * var(--tex, 1));
 }
 
 .venus {
@@ -412,11 +418,11 @@ code {
           animation: orb var(--dur) linear infinite;
 }
 .venus:before {
-  height: 8px;
-  width: 8px;
+  height: calc(8px * var(--tex, 1));
+  width: calc(8px * var(--tex, 1));
   background: radial-gradient(circle at 32% 28%, #ece7ad, #beb768 55%, #6f6730);
-  margin-top: -4px;
-  margin-left: -4px;
+  margin-top: calc(-4px * var(--tex, 1));
+  margin-left: calc(-4px * var(--tex, 1));
 }
 
 .earth {
@@ -431,11 +437,11 @@ code {
           animation: orb var(--dur) linear infinite;
 }
 .earth:before {
-  height: 6px;
-  width: 6px;
+  height: calc(6px * var(--tex, 1));
+  width: calc(6px * var(--tex, 1));
   background: radial-gradient(circle at 32% 28%, #7fd9ff, #11abe9 55%, #0a5f86);
-  margin-top: -3px;
-  margin-left: -3px;
+  margin-top: calc(-3px * var(--tex, 1));
+  margin-left: calc(-3px * var(--tex, 1));
 }
 .earth:after {
   position: absolute;
@@ -466,11 +472,11 @@ code {
           animation: orb var(--dur) linear infinite;
 }
 .mars:before {
-  height: 6px;
-  width: 6px;
+  height: calc(6px * var(--tex, 1));
+  width: calc(6px * var(--tex, 1));
   background: radial-gradient(circle at 32% 28%, #f2856f, #cf3921 55%, #68180c);
-  margin-top: -3px;
-  margin-left: -3px;
+  margin-top: calc(-3px * var(--tex, 1));
+  margin-left: calc(-3px * var(--tex, 1));
 }
 
 .jupiter {
@@ -485,11 +491,11 @@ code {
           animation: orb var(--dur) linear infinite;
 }
 .jupiter:before {
-  height: 18px;
-  width: 18px;
+  height: calc(18px * var(--tex, 1));
+  width: calc(18px * var(--tex, 1));
   background: radial-gradient(circle at 32% 28%, #f0b478, #c76e2a 55%, #67350f);
-  margin-top: -9px;
-  margin-left: -9px;
+  margin-top: calc(-9px * var(--tex, 1));
+  margin-left: calc(-9px * var(--tex, 1));
 }
 
 .saturn {
@@ -504,11 +510,11 @@ code {
           animation: orb var(--dur) linear infinite;
 }
 .saturn:before {
-  height: 12px;
-  width: 12px;
+  height: calc(12px * var(--tex, 1));
+  width: calc(12px * var(--tex, 1));
   background: radial-gradient(circle at 32% 28%, #fdf0dc, #e7c194 55%, #8f6a3c);
-  margin-top: -6px;
-  margin-left: -6px;
+  margin-top: calc(-6px * var(--tex, 1));
+  margin-left: calc(-6px * var(--tex, 1));
 }
 .saturn:after {
   position: absolute;
@@ -544,11 +550,11 @@ code {
           animation: orb var(--dur) linear infinite;
 }
 .uranus:before {
-  height: 10px;
-  width: 10px;
+  height: calc(10px * var(--tex, 1));
+  width: calc(10px * var(--tex, 1));
   background: radial-gradient(circle at 32% 28%, #eafcfc, #b5e3e3 55%, #649494);
-  margin-top: -5px;
-  margin-left: -5px;
+  margin-top: calc(-5px * var(--tex, 1));
+  margin-left: calc(-5px * var(--tex, 1));
 }
 
 .neptune {
@@ -563,11 +569,11 @@ code {
           animation: orb var(--dur) linear infinite;
 }
 .neptune:before {
-  height: 10px;
-  width: 10px;
+  height: calc(10px * var(--tex, 1));
+  width: calc(10px * var(--tex, 1));
   background: radial-gradient(circle at 32% 28%, #6fb0e6, #175e9e 55%, #08294f);
-  margin-top: -5px;
-  margin-left: -5px;
+  margin-top: calc(-5px * var(--tex, 1));
+  margin-left: calc(-5px * var(--tex, 1));
 }
 
 .asteroids-belt {
@@ -607,11 +613,11 @@ code {
           animation: orb var(--dur) linear infinite;
 }
 .pluto:before {
-  height: 3px;
-  width: 3px;
+  height: calc(3px * var(--tex, 1));
+  width: calc(3px * var(--tex, 1));
   background: radial-gradient(circle at 32% 28%, #ffffff, #e6e0d8 55%, #8a837a);
-  margin-top: -1.5px;
-  margin-left: -1.5px;
+  margin-top: calc(-1.5px * var(--tex, 1));
+  margin-left: calc(-1.5px * var(--tex, 1));
 }
 
 .hide {
@@ -672,22 +678,22 @@ code {
 /* 太阳日冕呼吸 */
 @-webkit-keyframes sunGlow {
   0%, 100% {
-    -webkit-box-shadow: 0 0 10px 2px rgba(255, 107, 0, 0.4), 0 0 22px 11px rgba(255, 203, 0, 0.13);
-            box-shadow: 0 0 10px 2px rgba(255, 107, 0, 0.4), 0 0 22px 11px rgba(255, 203, 0, 0.13);
+    -webkit-box-shadow: 0 0 calc(10px * var(--tex, 1)) calc(2px * var(--tex, 1)) rgba(255, 107, 0, 0.4), 0 0 calc(22px * var(--tex, 1)) calc(11px * var(--tex, 1)) rgba(255, 203, 0, 0.13);
+            box-shadow: 0 0 calc(10px * var(--tex, 1)) calc(2px * var(--tex, 1)) rgba(255, 107, 0, 0.4), 0 0 calc(22px * var(--tex, 1)) calc(11px * var(--tex, 1)) rgba(255, 203, 0, 0.13);
   }
   50% {
-    -webkit-box-shadow: 0 0 16px 4px rgba(255, 107, 0, 0.55), 0 0 34px 18px rgba(255, 203, 0, 0.22);
-            box-shadow: 0 0 16px 4px rgba(255, 107, 0, 0.55), 0 0 34px 18px rgba(255, 203, 0, 0.22);
+    -webkit-box-shadow: 0 0 calc(16px * var(--tex, 1)) calc(4px * var(--tex, 1)) rgba(255, 107, 0, 0.55), 0 0 calc(34px * var(--tex, 1)) calc(18px * var(--tex, 1)) rgba(255, 203, 0, 0.22);
+            box-shadow: 0 0 calc(16px * var(--tex, 1)) calc(4px * var(--tex, 1)) rgba(255, 107, 0, 0.55), 0 0 calc(34px * var(--tex, 1)) calc(18px * var(--tex, 1)) rgba(255, 203, 0, 0.22);
   }
 }
 @keyframes sunGlow {
   0%, 100% {
-    -webkit-box-shadow: 0 0 10px 2px rgba(255, 107, 0, 0.4), 0 0 22px 11px rgba(255, 203, 0, 0.13);
-            box-shadow: 0 0 10px 2px rgba(255, 107, 0, 0.4), 0 0 22px 11px rgba(255, 203, 0, 0.13);
+    -webkit-box-shadow: 0 0 calc(10px * var(--tex, 1)) calc(2px * var(--tex, 1)) rgba(255, 107, 0, 0.4), 0 0 calc(22px * var(--tex, 1)) calc(11px * var(--tex, 1)) rgba(255, 203, 0, 0.13);
+            box-shadow: 0 0 calc(10px * var(--tex, 1)) calc(2px * var(--tex, 1)) rgba(255, 107, 0, 0.4), 0 0 calc(22px * var(--tex, 1)) calc(11px * var(--tex, 1)) rgba(255, 203, 0, 0.13);
   }
   50% {
-    -webkit-box-shadow: 0 0 16px 4px rgba(255, 107, 0, 0.55), 0 0 34px 18px rgba(255, 203, 0, 0.22);
-            box-shadow: 0 0 16px 4px rgba(255, 107, 0, 0.55), 0 0 34px 18px rgba(255, 203, 0, 0.22);
+    -webkit-box-shadow: 0 0 calc(16px * var(--tex, 1)) calc(4px * var(--tex, 1)) rgba(255, 107, 0, 0.55), 0 0 calc(34px * var(--tex, 1)) calc(18px * var(--tex, 1)) rgba(255, 203, 0, 0.22);
+            box-shadow: 0 0 calc(16px * var(--tex, 1)) calc(4px * var(--tex, 1)) rgba(255, 107, 0, 0.55), 0 0 calc(34px * var(--tex, 1)) calc(18px * var(--tex, 1)) rgba(255, 203, 0, 0.22);
   }
 }
 
@@ -878,6 +884,12 @@ body.is-dragging .card {
 
 /* ── 无障碍：尊重「减弱动态效果」系统偏好 ───────────────── */
 @media (prefers-reduced-motion: reduce) {
+  /* 动画被关掉后，billboard 里的 scale(var(--s)) 不再生效，而星球本体已按 --tex
+     放大绘制，必须补一条静态 transform 缩回去，否则星球会显示成 4 倍大 */
+  .solar-syst div:not(.sun):not(.asteroids-belt):before {
+    -webkit-transform: rotateY(calc(-1 * var(--yaw, 0deg))) rotateX(calc(-1 * var(--pitch, 0deg))) scale(var(--s, 1));
+            transform: rotateY(calc(-1 * var(--yaw, 0deg))) rotateX(calc(-1 * var(--pitch, 0deg))) scale(var(--s, 1));
+  }
   .solar-syst,
   .solar-syst div,
   .solar-syst div:before,
