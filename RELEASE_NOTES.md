@@ -1,4 +1,4 @@
-# solar-syst v1.2.2
+# solar-system v1.2.2
 
 360° 视角拖拽旋转太阳系 🔭
 
@@ -29,6 +29,7 @@
 - 拖拽状态有多重兜底清理（`pointerup` / `pointercancel` / `pointerleave` / 窗口 `blur`），不会因双指缩放或在窗口外松手而卡住。
 - 视角联动渐变使用 CSS 三角函数（Chrome 111+ / Safari 15.4+）；每个天体都保留一条静态渐变兜底声明，旧浏览器自动退回原有效果。
 - `prefers-reduced-motion: reduce` 下动画关闭，星球与行星环补有静态 `transform` 兜底，尺寸与静态观感保持一致。
+- 本版本起页面包含**原生 JavaScript**（`js/view.js`，无依赖、无构建步骤）：负责 360° 视角拖拽 / 俯仰、滚轮与双指缩放、双击复位与左侧列表联动；「表面随视角旋转」依赖它把 `--yaw` / `--pitch` 写入 `<html>`。项目不再宣称「零 JavaScript」，但公转动画、数据卡、行星环、写实渐变等主体功能仍完全由 CSS 驱动，删除脚本后页面退回静态视角且不报错。
 
 ---
 
