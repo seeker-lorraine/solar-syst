@@ -24,6 +24,7 @@
       <li><button type="button" data-target="mercury"><i class="dot dot-mercury"></i><span class="name">水星</span><span class="period">87.5 天</span></button></li>
       <li><button type="button" data-target="venus"><i class="dot dot-venus"></i><span class="name">金星</span><span class="period">224.7 天</span></button></li>
       <li><button type="button" data-target="earth"><i class="dot dot-earth"></i><span class="name">地球</span><span class="period">365.3 天</span></button></li>
+      <li><button type="button" data-target="moon"><i class="dot dot-moon"></i><span class="name">月球</span><span class="period">27.3 天</span></button></li>
       <li><button type="button" data-target="mars"><i class="dot dot-mars"></i><span class="name">火星</span><span class="period">687 天</span></button></li>
       <li><button type="button" data-target="belt"><i class="dot dot-belt"></i><span class="name">小行星带</span><span class="period">3~6 年</span></button></li>
       <li><button type="button" data-target="jupiter"><i class="dot dot-jupiter"></i><span class="name">木星</span><span class="period">11.9 年</span></button></li>
@@ -43,7 +44,10 @@
       <div class='sun' id='sun' data-name='sun' tabindex='0' aria-label='太阳'></div>
       <div class='mercury' id='mercury' data-name='mercury' tabindex='0' aria-label='水星'></div>
       <div class='venus' id='venus' data-name='venus' tabindex='0' aria-label='金星'></div>
-      <div class='earth' id='earth' data-name='earth' tabindex='0' aria-label='地球'></div>
+      <div class='earth' id='earth' data-name='earth' tabindex='0' aria-label='地球'>
+        <!-- 月球：独立元素，可悬停 / 点按 / Tab 聚焦查看数据卡 -->
+        <div class='moon' id='moon' data-name='moon' tabindex='0' aria-label='月球'></div>
+      </div>
       <div class='mars' id='mars' data-name='mars' tabindex='0' aria-label='火星'></div>
       <!-- 小行星带紧跟在火星之后：它的真实位置在火星与木星轨道之间，
           放在这里后 Tab 焦点顺序也与天体由内到外的顺序一致 -->
@@ -130,6 +134,25 @@
         <dt>本页动画周期</dt><dd>30 s</dd>
       </dl>
       <p class="note">月球：直径 3,475 km，距地 384,400 km，绕地 27.32 天（本页 2.24 s），表面重力 1.62 m/s²。</p>
+    </section>
+
+    <section class="card card-moon">
+      <header><i class="dot dot-moon"></i><h2>月球<small>Moon</small></h2><span class="tag">地球卫星</span></header>
+      <dl>
+        <dt>赤道直径</dt><dd>3,474 km（0.27 地球）</dd>
+        <dt>质量</dt><dd>7.342 × 10²² kg（0.0123 地球）</dd>
+        <dt>平均密度</dt><dd>3.34 g/cm³</dd>
+        <dt>表面重力</dt><dd>1.62 m/s²（0.166 g）</dd>
+        <dt>公转周期（绕地）</dt><dd>27.32 天（恒星月）</dd>
+        <dt>自转周期</dt><dd>27.32 天（潮汐锁定）</dd>
+        <dt>轨道速度</dt><dd>1.02 km/s</dd>
+        <dt>地月距离</dt><dd>384,400 km（近点 36.33 万 / 远点 40.55 万 km）</dd>
+        <dt>轨道偏心率</dt><dd>0.0549</dd>
+        <dt>表面温度</dt><dd>−173 ~ 127 °C</dd>
+        <dt>形成年龄</dt><dd>约 45 亿年（大碰撞假说）</dd>
+        <dt>本页动画周期</dt><dd>2.24 s</dd>
+      </dl>
+      <p class="note">潮汐锁定使月球永远以同一面朝向地球；它正以每年约 3.8 cm 的速度缓缓远离地球。</p>
     </section>
 
     <section class="card card-mars">
