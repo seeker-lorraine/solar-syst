@@ -367,12 +367,14 @@ code {
 /* 小行星带：悬停 / 选中反馈（整体提亮 + 光晕；带内伪元素无独立 3D 变换，
    filter 不会破坏 preserve-3d，同太阳的 filter 反馈先例） */
 .solar-syst div.asteroids-belt {
-  -webkit-transition: border-color .3s ease, filter .25s ease;
-          transition: border-color .3s ease, filter .25s ease;
+  -webkit-transition: filter .25s ease;
+          transition: filter .25s ease;
 }
 .asteroids-belt:is(:hover, :focus) {
-  -webkit-filter: brightness(1.5) drop-shadow(0 0 6px rgba(255, 255, 255, 0.35));
-          filter: brightness(1.5) drop-shadow(0 0 6px rgba(255, 255, 255, 0.35));
+  -webkit-filter: brightness(1.55);
+          filter: brightness(1.55);
+  /* 选中 = 高亮整片区域：火星轨道（r≈95）到木星轨道（r≈170）之间的环带 */
+  background: radial-gradient(circle, rgba(255, 255, 255, 0) 0 94px, rgba(255, 255, 255, 0.18) 97px 162px, rgba(255, 255, 255, 0) 168px);
 }
 .solar-syst div:not(.asteroids-belt):before {
   -webkit-box-shadow: inset 0 calc(6px * var(--tex, 1)) 0 calc(-2px * var(--tex, 1)) rgba(0, 0, 0, 0.25);
@@ -789,17 +791,30 @@ code {
           transform-origin: 50% 50%;
 }
 
+/* 小行星带 = 火星轨道（r≈95）与木星轨道（r=170）之间的区域，
+   容器因此放大到 340px（与木星轨道同半径），纹理圆点也裁剪到 r=170 */
 .asteroids-belt {
   opacity: .7;
   border-color: transparent !important;
-  height: 300px;
-  width: 300px;
-  margin-top: -150px;
-  margin-left: -150px;
+  height: 340px;
+  width: 340px;
+  margin-top: -170px;
+  margin-left: -170px;
   z-index: 50;
   -webkit-animation: orb calc(var(--earth-year) * 5.9985276) linear infinite;
           animation: orb calc(var(--earth-year) * 5.9985276) linear infinite;
   overflow: hidden;
+  /* 关键：带纹理的圆点其实画到了 r≈200，靠 overflow 裁剪在 r=170。
+     部分移动浏览器（尤其 iOS Safari）对 3D 合成层的 overflow+圆角裁剪会失效，
+     clip-path 对合成层更可靠。 */
+  -webkit-clip-path: circle(170px);
+          clip-path: circle(170px);
+}
+/* 伪元素同样裁到 r=170（防移动端 overflow 裁剪失效漏点到木星轨道之外） */
+.asteroids-belt:before,
+.asteroids-belt:after {
+  -webkit-clip-path: circle(170px);
+          clip-path: circle(170px);
 }
 .asteroids-belt:before {
   top: 50%;
@@ -822,10 +837,11 @@ code {
   content: "";
   top: 50%;
   left: 50%;
-  height: 210px;
-  width: 210px;
-  margin-left: -105px;
-  margin-top: -105px;
+  /* 340px：命中区覆盖整片区域（点选带内任意位置都能选中） */
+  height: 340px;
+  width: 340px;
+  margin-left: -170px;
+  margin-top: -170px;
   border-radius: 50%;
   background: transparent;
   -webkit-box-shadow: 88px -46px 0 -102px rgba(222, 216, 204, 0.6), -70px 68px 0 -103px rgba(190, 184, 174, 0.5), 34px 92px 0 -102px rgba(170, 164, 154, 0.45), -96px -28px 0 -102px rgba(214, 208, 196, 0.55), 12px -99px 0 -103px rgba(196, 190, 180, 0.45), -44px -88px 0 -102px rgba(206, 200, 190, 0.5), 76px 60px 0 -100px rgba(238, 232, 220, 0.85), -22px 97px 0 -103px rgba(188, 182, 172, 0.4), 99px 8px 0 -102px rgba(208, 202, 192, 0.5), -88px 40px 0 -102px rgba(216, 210, 198, 0.55), 58px -80px 0 -103px rgba(194, 188, 178, 0.45), -8px 100px 0 -101px rgba(230, 224, 212, 0.7), 100px -18px 0 -103px rgba(198, 192, 182, 0.45), -60px -80px 0 -102px rgba(204, 198, 188, 0.5), 26px -96px 0 -102px rgba(222, 216, 204, 0.6), -99px 12px 0 -103px rgba(192, 186, 176, 0.4), 70px 72px 0 -102px rgba(218, 212, 200, 0.55), -32px -94px 0 -103px rgba(200, 194, 184, 0.45), 90px 38px 0 -102px rgba(212, 206, 196, 0.5), -76px -64px 0 -102px rgba(226, 220, 208, 0.6), 46px 90px 0 -103px rgba(196, 190, 180, 0.45), -14px -100px 0 -101px rgba(232, 226, 214, 0.75), 82px -56px 0 -102px rgba(214, 208, 196, 0.55), -50px 86px 0 -103px rgba(192, 186, 176, 0.4), -84px -52px 0 -102px rgba(206, 200, 190, 0.5), -94px -34px 0 -100px rgba(240, 234, 222, 0.9), 38px -92px 0 -103px rgba(198, 192, 182, 0.45), -68px 72px 0 -103px rgba(204, 198, 188, 0.45), 96px -26px 0 -102px rgba(216, 210, 198, 0.55), -40px 92px 0 -102px rgba(224, 218, 206, 0.6), -90px 44px 0 -102px rgba(228, 222, 210, 0.6), 74px -66px 0 -103px rgba(200, 194, 184, 0.45), -26px -96px 0 -102px rgba(218, 212, 200, 0.55), 52px 86px 0 -102px rgba(226, 220, 208, 0.6), -98px 20px 0 -103px rgba(196, 190, 180, 0.4), 86px 50px 0 -102px rgba(214, 208, 196, 0.5);
